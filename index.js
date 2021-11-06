@@ -1,5 +1,5 @@
 const { defineProperties } = Object, noop = (_) => {}, id = Symbol();
-const isFunction = ($) => typeof $ == "function";
+export const isFunction = ($) => typeof $ == "function";
 
 [Number, String].forEach(({ prototype: $ }) =>
   defineProperties($, {
