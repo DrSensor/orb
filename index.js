@@ -9,7 +9,7 @@ export const queue = (cb) =>
   isFunction(cb)
     ? function () {
       const defer = () => cb.apply(this, arguments);
-      queue$.push(defer);
+      queue$.unshift(defer);
       return defer;
     }
     : cb;
