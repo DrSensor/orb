@@ -1,7 +1,7 @@
 const { defineProperties } = Object, noop = (_) => {}, { iterator } = Symbol;
 export const isFunction = ($) => typeof $ == "function";
 
-[Number, String].forEach(({ prototype: $ }) =>
+[Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
     [iterator]: {
       value: function* () {
