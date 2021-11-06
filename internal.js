@@ -1,4 +1,4 @@
-const { defineProperties } = Object, noop = (_) => {}, id = Symbol();
+const { defineProperties } = Object, noop = (_) => {};
 export const isFunction = ($) => typeof $ == "function";
 
 [Number, String].forEach(({ prototype: $ }) =>
@@ -6,7 +6,7 @@ export const isFunction = ($) => typeof $ == "function";
     [Symbol.iterator]: {
       value: function* () {
         let self = this, onchange = noop;
-        const react = [];
+        const react = new Set();
         const orb = defineProperties(
           (...$) => {
             if ($.length) {
@@ -20,18 +20,10 @@ export const isFunction = ($) => typeof $ == "function";
           {
             reset: { value: () => orb(this) },
             value: { set: orb, get: orb },
-            unbind: {
-              value: ($) => {
-                const { length } = react;
-                isFunction($)
-                  ? react.splice(react.findIndex((cb) => cb[id] == $[id]), 1)
-                  : react.splice($ > 0 ? $ - 1 : length, 1);
-                return length;
-              },
-            },
+            unbind: { value: (cb) => react.delete(cb) && react.size },
             onchange: {
               set: (cb) => onchange = isFunction(cb) ? cb : noop,
-              get: () => (cb) => isFunction(cb) ? cb[id] = react.push(cb) : 0,
+              get: () => (cb) => isFunction(cb) && react.add(cb) && cb,
             },
           },
         );
