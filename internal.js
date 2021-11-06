@@ -1,23 +1,22 @@
-const { defineProperties } = Object, noop = (_) => {}, { iterator } = Symbol;
+const { defineProperties } = Object, { iterator } = Symbol;
 export const isFunction = ($) => typeof $ == "function";
 
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
     [iterator]: {
       value: function* () {
-        let self = this, onchange = noop;
-        const react = new Set();
+        let self = this;
         const orb = defineProperties(
           (...$) => {
             const [$1] = $;
             if (isFunction($1)) { // cascading transformed orb
               const [orb$] = $[iterator].apply(self);
-              react.add((value) => orb$($1(value)));
+              orb.effect.add((value) => orb$($1(value)));
               return orb$;
-            } else {
+            } else { // set/get orb
               if ($.length) {
-                const finalize = onchange(self = $1), after = [];
-                react.forEach((effect) => after.push(effect(self)));
+                const finalize = orb.onchange?.(self = $1), after = [];
+                for (const effect of orb.effect) after.push(effect(self));
                 while (after.length) after.shift()?.();
                 finalize?.();
               }
@@ -25,16 +24,12 @@ export const isFunction = ($) => typeof $ == "function";
             }
           },
           {
+            effect: { value: new Set() },
             reset: { value: () => orb(this) },
             value: { set: orb, get: orb },
-            unbind: { value: (cb) => react.delete(cb) && react.size },
-            onchange: {
-              set: (cb) => onchange = isFunction(cb) ? cb : noop,
-              get: () => (cb) => isFunction(cb) && react.add(cb) && cb,
-            },
             [iterator]: function* () { // cascading orb
               const [orb$] = $[iterator].apply(self);
-              react.add(orb$);
+              orb.effect.add(orb$);
               yield orb$;
             },
           },
