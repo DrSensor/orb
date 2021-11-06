@@ -10,8 +10,10 @@ export const isFunction = ($) => typeof $ == "function";
         const orb = defineProperties(
           (...$) => {
             if ($.length) {
-              onchange(self = $[0]);
-              react.forEach((effect) => effect(self));
+              const finalize = onchange(self = $[0]), after = [];
+              react.forEach((effect) => after.push(effect(self)));
+              while (after.length) after.shift()?.();
+              finalize?.();
             }
             return self;
           },
