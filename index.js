@@ -23,6 +23,9 @@ export const binds = (orbs, dict) =>
 
 export const reset = (orb) => orb(orb.initial);
 
+export const useEffect = (effect, orbs) =>
+  orbs.forEach((orb) => orb.onchange = effect);
+
 export const root = (orb) => Array.from(ancestor(orb)).at(-1);
 
 export function* ancestor(orb) {
