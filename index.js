@@ -23,6 +23,14 @@ export const binds = (orbs, dict) =>
 
 export const reset = (orb) => orb(orb.initial);
 
+export const insync = (orb) => orb.inherit?.effect.has(orb),
+  sync = (orb) => orb.inherit?.effect.add(orb),
+  unlink = (orb) => orb.inherit?.effect.delete(orb),
+  relink = (orb) => {
+    if (insync(orb)) unlink(orb);
+    return sync(orb);
+  };
+
 const queue$ = [];
 
 export const queue = (effect) =>
