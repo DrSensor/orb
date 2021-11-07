@@ -1,5 +1,8 @@
 const { defineProperties } = Object, { iterator } = Symbol;
 
+const inherit = (child, parent) =>
+  defineProperties(child, { inherit: { value: parent } });
+
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
     [iterator]: {
@@ -11,7 +14,7 @@ const { defineProperties } = Object, { iterator } = Symbol;
             if (typeof $1 == "function") { // cascading transformed orb
               const [orb$] = $[iterator].apply(self);
               orb.effect.add((value) => orb$($1(value)));
-              return orb$;
+              return inherit(orb$, orb);
             } else { // set/get orb
               if ($.length) {
                 const finalize = orb.onchange?.(self = $1), after = [];
@@ -29,7 +32,7 @@ const { defineProperties } = Object, { iterator } = Symbol;
             [iterator]: function* () { // cascading orb
               const [orb$] = $[iterator].apply(self);
               orb.effect.add(orb$);
-              yield orb$;
+              yield inherit(orb$, orb);
             },
           },
         );
