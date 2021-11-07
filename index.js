@@ -9,6 +9,8 @@ export const bindProperties = (orb, obj, ...props) => {
 export const unbind = (orb, ...effects) =>
   effects.every((effect) => orb.effect.delete(effect));
 
+export const reset = (orb) => orb(orb.initial);
+
 const queue$ = [];
 
 export const queue = (effect) =>

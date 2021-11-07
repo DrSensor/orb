@@ -24,7 +24,7 @@ const { defineProperties } = Object, { iterator } = Symbol;
           },
           {
             effect: { value: new Set() },
-            reset: { value: () => orb(this) },
+            initial: { value: this },
             value: { set: orb, get: orb },
             [iterator]: function* () { // cascading orb
               const [orb$] = $[iterator].apply(self);
