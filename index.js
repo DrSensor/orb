@@ -1,4 +1,4 @@
-import { isFunction } from "./internal.js";
+import "./internal.js";
 
 export const bindProperties = (orb, obj, ...props) => {
   const effect = (value) => props.forEach((prop) => obj[prop] = value);
@@ -11,14 +11,12 @@ export const unbind = (orb, ...effects) =>
 
 const queue$ = [];
 
-export const queue = (cb) =>
-  isFunction(cb)
-    ? function () {
-      const defer = () => cb.apply(this, arguments);
-      queue$.unshift(defer);
-      return defer;
-    }
-    : cb;
+export const queue = (effect) =>
+  function () {
+    const defer = () => effect.apply(this, arguments);
+    queue$.unshift(defer);
+    return defer;
+  };
 
 export const flush = () => {
   while (queue$.length) queue$.pop()();

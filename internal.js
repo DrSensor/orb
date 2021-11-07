@@ -1,5 +1,4 @@
 const { defineProperties } = Object, { iterator } = Symbol;
-export const isFunction = ($) => typeof $ == "function";
 
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
@@ -9,7 +8,7 @@ export const isFunction = ($) => typeof $ == "function";
         const orb = defineProperties(
           (...$) => {
             const [$1] = $;
-            if (isFunction($1)) { // cascading transformed orb
+            if (typeof $1 == "function") { // cascading transformed orb
               const [orb$] = $[iterator].apply(self);
               orb.effect.add((value) => orb$($1(value)));
               return orb$;
