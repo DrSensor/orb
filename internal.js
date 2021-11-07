@@ -1,8 +1,5 @@
 const { defineProperties } = Object, { iterator } = Symbol;
 
-const inherit = (child, parent) =>
-  defineProperties(child, { inherit: { value: parent } });
-
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
     [iterator]: {
@@ -12,9 +9,7 @@ const inherit = (child, parent) =>
           (...$) => {
             const [$1] = $;
             if (typeof $1 == "function") { // cascading transformed orb
-              const [orb$] = $[iterator].apply(self);
-              orb.effect.add((value) => orb$($1(value)));
-              return inherit(orb$, orb);
+              return cascade((orb$) => (value) => orb$($1(value)));
             } else { // set/get orb
               if ($.length) {
                 const finalize = orb.onchange?.(self = $1), after = [];
@@ -30,12 +25,15 @@ const inherit = (child, parent) =>
             initial: { value: this },
             value: { set: orb, get: orb },
             [iterator]: function* () { // cascading orb
-              const [orb$] = $[iterator].apply(self);
-              orb.effect.add(orb$);
-              yield inherit(orb$, orb);
+              yield cascade((orb$) => orb$);
             },
           },
         );
+        const cascade = (mkEffect) => {
+          const [orb$] = $[iterator].apply(self); // BUG: seems it only able to cascade one level 🤔
+          orb.effect.add(mkEffect(orb$));
+          return defineProperties(orb$, { inherit: { value: orb } });
+        };
         yield orb;
       },
     },
