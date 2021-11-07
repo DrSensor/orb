@@ -3,7 +3,7 @@ const { defineProperties } = Object, { iterator } = Symbol;
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   defineProperties($, {
     [iterator]: {
-      value: function* () {
+      *value() {
         let self = this;
         const orb = (...$) => {
           const [$1] = $;
@@ -23,8 +23,10 @@ const { defineProperties } = Object, { iterator } = Symbol;
           effect: { value: new Set() },
           initial: { value: this },
           value: { set: orb, get: orb },
-          [iterator]: function* () { // cascading orb
-            yield cascade((orb$) => orb$);
+          [iterator]: { // cascading orb
+            *value() {
+              yield cascade((orb$) => orb$);
+            },
           },
         });
         const cascade = (mkEffect) => {
