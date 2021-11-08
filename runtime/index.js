@@ -1,4 +1,4 @@
-import orb from "./factory.js";
+import orb from "../factory.js";
 
 [Boolean, Number, String, BigInt].forEach(({ prototype: $ }) =>
   Object.defineProperty($, Symbol.iterator, {
