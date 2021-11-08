@@ -1,4 +1,4 @@
-const { defineProperties } = Object, { iterator } = Symbol;
+const { defineProperties } = Object, { iterator, toPrimitive } = Symbol;
 const isFunction = ($) => typeof $ == "function", create = {};
 
 // keep the function.name anonymous
@@ -33,6 +33,7 @@ create.orb = (self) => {
     effect: { value: new Set() },
     initial: { value: self },
     value: { set: orb, get: orb },
+    [toPrimitive]: { value: () => self },
     [iterator]: { // cascading orb
       *value() {
         yield cascade((orb$) => orb$);
