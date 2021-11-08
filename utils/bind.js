@@ -1,4 +1,4 @@
-export const bindProperties = (orb, obj, ...props) => {
+export const bind = (orb, obj, ...props) => {
   const effect = (value) => props.forEach((prop) => obj[prop] = value);
   orb.effect.add(effect);
   return effect;

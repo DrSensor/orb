@@ -1,3 +1,4 @@
+export const reset = (orb) => orb(orb.initial);
 export * from "./bind.js";
 export * from "./link.js";
 export * from "./misc.js";

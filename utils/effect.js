@@ -1,3 +1,6 @@
+export const useEffect = (effect, orbs) =>
+  orbs.forEach((orb) => orb.onchange = effect);
+
 const queue$ = [];
 
 export const queue = (effect) =>
