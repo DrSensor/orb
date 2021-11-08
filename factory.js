@@ -8,7 +8,7 @@ create.orb = (self) => {
     if (isFunction($1)) { // cascading transformed orb
       return cascade((orb$) => (value) => orb$($1(value)));
     } else { // set/get orb
-      if ($.length) {
+      if ($.length && self !== $1) {
         self = $1;
         const finalize = orb.onchange?.(self), after = [];
         for (const effect of orb.effect) after.push(effect(self));
