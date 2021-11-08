@@ -47,6 +47,16 @@ export function* descendant(orb) {
   }
 }
 
+const eachother = (list, callback) =>
+  list.forEach((item, i) =>
+    list.forEach((item$, i$) => i !== i$ && callback(item, item$))
+  );
+
+export const links = (...orbs) =>
+    eachother(orbs, (orb, orb$) => orb.effect.add(orb$)),
+  unlinks = (...orbs) =>
+    eachother(orbs, (orb, orb$) => orb.effect.delete(orb$));
+
 export const insync = (orb) => orb.inherit?.effect.has(orb),
   sync = (orb) => orb.inherit?.effect.add(orb),
   unlink = (orb) => orb.inherit?.effect.delete(orb),
