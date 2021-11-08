@@ -4,6 +4,7 @@ const eachother = (list, callback) =>
   );
 
 export const links = (...orbs) =>
-    eachother(orbs, (orb, orb$) => orb.effect.add(orb$)),
-  unlinks = (...orbs) =>
-    eachother(orbs, (orb, orb$) => orb.effect.delete(orb$));
+  eachother(orbs, (orb, orb$) => orb.effect.add(orb$));
+
+export const unlinks = (...orbs) =>
+  eachother(orbs, (orb, orb$) => orb.effect.delete(orb$));
