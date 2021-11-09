@@ -9,17 +9,19 @@ create.orb = (self) => {
       return cascade((orb$) => (value) => orb$($1(value)));
     } else { // set/get orb
       if ($.length) {
-        (async () => {
-          if (self !== $1) {
-            const finalize = await orb.onchange?.($1), after = [];
-            for await (const effect of orb.effect) after.push(effect($1));
-            for await (const effect of after) if (isFunction(effect)) effect();
-            await finalize?.();
-          }
-        })();
+        effect($1);
         self = $1;
       }
       return self;
+    }
+  };
+
+  const effect = async (value) => {
+    if (self !== value) {
+      const finalize = await orb.onchange?.(value), after = [];
+      for await (const effect of orb.effect) after.push(effect(value));
+      for await (const effect of after) if (isFunction(effect)) effect();
+      await finalize?.();
     }
   };
 
@@ -34,6 +36,7 @@ create.orb = (self) => {
     initial: { value: self },
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
+    then: { value: (resolve) => effect.then(() => resolve(self)) },
     [iterator]: { // cascading orb
       *value() {
         yield cascade((orb$) => orb$);
