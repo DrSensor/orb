@@ -9,14 +9,14 @@ create.orb = (self) => {
       return cascade((orb$) => (value) => orb$($1(value)));
     } else { // set/get orb
       if ($.length) {
-        queueMicrotask(() => {
+        (async () => {
           if (self !== $1) {
-            const finalize = orb.onchange?.($1), after = [];
-            for (const effect of orb.effect) after.push(effect($1));
-            for (const effect of after) if (isFunction(effect)) effect();
-            finalize?.();
+            const finalize = await orb.onchange?.($1), after = [];
+            for await (const effect of orb.effect) after.push(effect($1));
+            for await (const effect of after) if (isFunction(effect)) effect();
+            await finalize?.();
           }
-        });
+        })();
         self = $1;
       }
       return self;
