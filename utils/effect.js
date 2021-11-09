@@ -2,8 +2,8 @@ export const useEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.onchange = effect);
 
 export class QueueEffect {
-  constructor(deadline) {
-    const queue$ = [];
+  constructor(deadline, size) {
+    const queue$ = Array(size ?? 0);
 
     return [
       (effect) => {
