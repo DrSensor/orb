@@ -37,7 +37,12 @@ create.orb = (self) => {
     initial: { value: self },
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
-    then: { value: (resolve) => effect(self).then(resolve) },
+    then: {
+      value: (r) => {
+        const get = isFunction(r), resolve = get ? r : () => self = r;
+        return effect(get ? self : r).then(resolve);
+      },
+    },
     [iterator]: { // cascading orb
       *value() {
         yield cascade((orb$) => orb$);
