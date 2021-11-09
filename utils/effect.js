@@ -3,16 +3,16 @@ export const useEffect = (effect, orbs) =>
 
 export class QueueEffect {
   constructor(deadline, size) {
-    const queue$ = Array(size ?? 0),
-      enqueue = deadline ? queue$.unshift : queue$.push,
+    const effectPool = Array(size ?? 0),
+      enqueue = deadline ? effectPool.unshift : effectPool.push,
       dequeue = deadline
         ? (startTime) => {
-          queue$.pop()();
+          effectPool.pop()();
           return performance.now() - startTime < deadline; // continue flush-ing if still meet the deadline
         }
         : () => {
-          queue$.reverse();
-          queue$.pop()();
+          effectPool.reverse();
+          effectPool.pop()();
         };
     return [
       /*queue*/ (effect) =>
@@ -23,8 +23,9 @@ export class QueueEffect {
         },
       /*flush*/ () => {
         const startTime = performance.now();
-        while (queue$.length) if (!dequeue(startTime)) break;
+        while (effectPool.length) if (!dequeue(startTime)) break;
       },
+      effectPool, // in case someone want to class extends QueueEffect
     ];
   }
 }
