@@ -10,6 +10,10 @@ export const queue = (effect) =>
     return defer;
   };
 
-export const flush = () => {
-  while (queue$.length) queue$.pop()();
+export const flush = (timeout = Infinity) => {
+  const startTime = performance.now();
+  while (queue$.length) {
+    queue$.pop()();
+    if (performance.now() - startTime > timeout) break;
+  }
 };
