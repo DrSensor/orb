@@ -22,6 +22,7 @@ create.orb = (self) => {
       for await (const effect of orb.effect) after.push(effect(value));
       for await (const effect of after) if (isFunction(effect)) effect();
       await finalize?.();
+      return value;
     }
   };
 
@@ -36,7 +37,7 @@ create.orb = (self) => {
     initial: { value: self },
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
-    then: { value: (resolve) => effect.then(() => resolve(self)) },
+    then: { value: (resolve) => effect(self).then(resolve) },
     [iterator]: { // cascading orb
       *value() {
         yield cascade((orb$) => orb$);
