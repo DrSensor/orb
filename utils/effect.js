@@ -29,3 +29,5 @@ export class QueueEffect {
     ];
   }
 }
+
+export const [queue, flush] = new QueueEffect();
