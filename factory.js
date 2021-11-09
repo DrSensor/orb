@@ -9,7 +9,7 @@ create.orb = (self) => {
       return cascade((orb$) => (value) => orb$($1(value)));
     } else { // set/get orb
       if ($.length) {
-        effect($1);
+        if (self !== $1) effect($1);
         self = $1;
       }
       return self;
@@ -17,13 +17,13 @@ create.orb = (self) => {
   };
 
   const effect = async (value) => {
-    if (self !== value) {
-      const finalize = await orb.onchange?.(value), after = [];
-      for await (const effect of orb.effect) after.push(effect(value));
-      for await (const effect of after) if (isFunction(effect)) effect();
-      await finalize?.();
-      return value;
+    const finalize = await orb.onchange?.(value), after = [];
+    for await (let effect of orb.effect) {
+      if (isFunction(effect = effect(value))) after.push(effect);
     }
+    for await (const effect of after) effect();
+    await finalize?.();
+    return value;
   };
 
   const cascade = (mkEffect) => {
