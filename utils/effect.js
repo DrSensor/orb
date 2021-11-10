@@ -9,7 +9,7 @@ export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
       buffer.push(effect !== prevEffect ? effect : newEffect);
       orb.effect.delete(effect);
     }
-    for (const effect of buffer) orb.effect.add(effect);
+    buffer.forEach(orb.effect.add);
   });
 
 /** **WARNING** generally faster but require orb.offect to be writable which is unsafe */

@@ -39,7 +39,7 @@ create.orb = function (self) {
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
     then: {
-      value: (r) => {
+      value(r) {
         const get = isFunction(r), resolve = get ? r : () => self = r;
         return effect(get ? self : r).then(resolve);
       },

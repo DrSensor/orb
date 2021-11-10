@@ -13,7 +13,7 @@ export const unbinds = (orbs, effects) =>
 export const binds = (orbs, dict) =>
   orbs.map((orb) => {
     const effect = (value) => {
-      for (const prop in dict) for (const obj of dict[prop]) obj[prop] = value;
+      for (const prop in dict) dict[prop].forEach((obj) => obj[prop] = value);
     };
     orb.effect.add(effect);
     return effect;
