@@ -2,8 +2,10 @@ export const root = (orb) => Array.from(ancestor(orb)).at(-1);
 
 export function* ancestor(orb) {
   let parent = orb.inherit;
-  yield parent;
-  while (parent = parent.inherit) yield parent;
+  while (parent) {
+    yield parent;
+    parent = parent.inherit;
+  }
 }
 
 export function* children(orb) {
@@ -11,8 +13,6 @@ export function* children(orb) {
 }
 
 export function* descendant(orb) {
-  // yield* descendant(yield* children); // TODO: check if recursive Generator `yield* self(yield* other)` works
-  // TODO: replace 👇 if 👆 works!
   for (const child of children(orb)) {
     yield child;
     yield* descendant(child);
