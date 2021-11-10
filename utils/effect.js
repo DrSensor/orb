@@ -1,4 +1,4 @@
-export const useEffect = (effect, orbs) =>
+export const setEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.onchange = effect);
 
 /** **WARNING** very slow operation */

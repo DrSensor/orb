@@ -14,8 +14,8 @@ const eachother = (list, callback) =>
     list.forEach((item$, i$) => i !== i$ && callback(item, item$))
   );
 
-export const links = (...orbs) =>
+export const link = (...orbs) =>
   eachother(orbs, (orb, orb$) => orb.effect.add(orb$));
 
-export const unlinks = (...orbs) =>
+export const unlink = (...orbs) =>
   eachother(orbs, (orb, orb$) => orb.effect.delete(orb$));

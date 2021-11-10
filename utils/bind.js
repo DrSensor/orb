@@ -7,10 +7,10 @@ export const bind = (orb, obj, ...props) => {
 export const unbind = (orb, ...effects) =>
   effects.every((effect) => orb.effect.delete(effect));
 
-export const unbinds = (orbs, effects) =>
+export const unbindAll = (orbs, effects) =>
   effects.some((effect) => orbs.some((orb) => orb.effect.delete(effect)));
 
-export const binds = (orbs, dict) =>
+export const bindAll = (orbs, dict) =>
   orbs.map((orb) => {
     const effect = (value) => {
       for (const prop in dict) dict[prop].forEach((obj) => obj[prop] = value);
