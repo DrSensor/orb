@@ -18,7 +18,7 @@ create.orb = function (self) {
 
   const context = this ?? {};
   const effect = async (value) => {
-    const finalize = await orb.onchange?.(value), after = [];
+    const finalize = await orb.onchange?.call(context, value), after = [];
     for await (let effect of orb.effect) {
       if (isFunction(effect = effect.call(context, value))) after.push(effect);
     }
@@ -34,7 +34,7 @@ create.orb = function (self) {
   };
 
   return defineProperties(orb, {
-    effect: { value: new Set() },
+    effect: { value: new Effect(context) },
     initial: { value: self },
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
@@ -51,5 +51,19 @@ create.orb = function (self) {
     },
   });
 };
+
+class Effect extends Set {
+  constructor(context) {
+    super();
+    this.add = (item) => {
+      this.onadd?.(context);
+      return super.add(item);
+    };
+    this.delete = (item) => {
+      this.ondelete?.(context);
+      return super.delete(item);
+    };
+  }
+}
 
 export default create.orb;

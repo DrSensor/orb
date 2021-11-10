@@ -1,6 +1,17 @@
 export const setEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.onchange = effect);
 
+const jsxs = (context) => context.component === "toplevel"; // just example
+export const useEffect = (effect, orbs, when = jsxs) => { // seems complicated 😂
+  let finalize;
+  for (const orb of orbs) {
+    Object.assign(orb.effect, {
+      onadd: (context) => when(context) && (finalize = effect(context)),
+      ondelete: () => finalize?.(),
+    });
+  }
+};
+
 /** **WARNING** very slow operation */
 export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
   orbs.forEach((orb) => {
