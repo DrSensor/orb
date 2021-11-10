@@ -17,9 +17,9 @@ create.orb = (self) => {
   };
 
   const effect = async (value) => {
-    const finalize = await orb.onchange?.(value), after = [];
+    const finalize = await orb.onchange?.(value), after = [], context = {};
     for await (let effect of orb.effect) {
-      if (isFunction(effect = effect(value))) after.push(effect);
+      if (isFunction(effect = effect.call(context, value))) after.push(effect);
     }
     for await (const effect of after) effect();
     await finalize?.();
