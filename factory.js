@@ -2,7 +2,7 @@ const { defineProperties } = Object, { iterator, toPrimitive } = Symbol;
 const isFunction = ($) => typeof $ == "function", create = {};
 
 // keep the function.name anonymous
-create.orb = (self) => {
+create.orb = function (self) {
   const orb = (...$) => {
     const [$1] = $;
     if (isFunction($1)) { // cascading transformed orb
@@ -16,8 +16,9 @@ create.orb = (self) => {
     }
   };
 
+  const context = this ?? {};
   const effect = async (value) => {
-    const finalize = await orb.onchange?.(value), after = [], context = {};
+    const finalize = await orb.onchange?.(value), after = [];
     for await (let effect of orb.effect) {
       if (isFunction(effect = effect.call(context, value))) after.push(effect);
     }
@@ -27,7 +28,7 @@ create.orb = (self) => {
   };
 
   const cascade = (mkEffect) => {
-    const orb$ = create.orb(self);
+    const orb$ = create.orb.call(context, self);
     orb.effect.add(mkEffect(orb$));
     return defineProperties(orb$, { inherit: { value: orb } });
   };
