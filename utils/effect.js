@@ -1,6 +1,25 @@
 export const useEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.onchange = effect);
 
+/** **WARNING** very slow operation */
+export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
+  orbs.forEach((orb) => {
+    const buffer = [];
+    for (const effect of orb.effect) {
+      buffer.push(effect !== prevEffect ? effect : newEffect);
+      orb.effect.delete(effect);
+    }
+    for (const effect of buffer) orb.effect.add(effect);
+  });
+
+/** **WARNING** generally faster but require orb.offect to be writable which is unsafe */
+// export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
+//   orbs.forEach((orb) => {
+//     const effects = Array.from(orb.effect);
+//     effects.splice(effects.indexOf(prevEffect), 1, newEffect);
+//     orb.effect = new Set(effects);
+//   });
+
 export class QueueEffect {
   constructor(deadline, size) {
     const effectPool = Array(size ?? 0),
