@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "orb.value": ["./factory.js"],
+      "@orb-runtime/core": ["./runtime/index.js"],
+      "@orb-runtime/": ["./runtime/"]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "orb.value": "/factory.js",
+    "orb-utils": "/utils/index.js",
+    "orb-utils/": "/utils/",
+    "@orb-runtime/core": "/runtime/index.js",
+    "@orb-runtime/": "/runtime/"
+  }
+}

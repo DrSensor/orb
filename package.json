@@ -1,0 +1,9 @@
+{
+  "name": "orb.value",
+  "types": "./factory.d.ts",
+  "exports": "./factory.js",
+  "workspaces": ["*", "runtime/*"],
+  "devDependencies": {
+    "mocha": "*"
+  }
+}
