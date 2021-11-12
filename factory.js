@@ -1,8 +1,7 @@
 const { defineProperties } = Object, { iterator, toPrimitive } = Symbol;
-const isFunction = ($) => typeof $ == "function", create = {};
+const isFunction = ($) => typeof $ == "function";
 
-// keep the function.name anonymous
-create.orb = function (self) {
+export default function Orb(self) {
   const orb = (...$) => {
     const [$1] = $;
     if (isFunction($1)) { // cascading transformed orb
@@ -28,7 +27,7 @@ create.orb = function (self) {
   };
 
   const cascade = (mkEffect) => {
-    const orb$ = create.orb.call(context, self);
+    const orb$ = Orb.call(context, self);
     orb.effect.add(mkEffect(orb$));
     return defineProperties(orb$, { inherit: { value: orb } });
   };
@@ -66,4 +65,3 @@ class Effect extends Set {
   }
 }
 
-export default create.orb;
