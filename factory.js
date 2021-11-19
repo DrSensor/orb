@@ -1,4 +1,4 @@
-const { defineProperties } = Object, { iterator, toPrimitive } = Symbol;
+const { defineProperties } = Object;
 const isFunction = ($) => typeof $ == "function";
 
 export default function Orb(self) {
@@ -37,20 +37,20 @@ export default function Orb(self) {
     effect: { get: () => effects, set: (cb) => onchange = cb },
     initial: { value: self },
     value: { set: orb, get: orb },
-    [toPrimitive]: { value: () => self },
+    [Symbol.toPrimitive]: { value: () => self },
     then: {
       value(r) {
         const get = isFunction(r), resolve = get ? r : () => self = r;
         return effect(get ? self : r).then(resolve);
       },
     },
-    [iterator]: { // cascading orb
+    [Symbol.iterator]: { // cascading orb
       *value() {
         yield cascade((orb$) => orb$);
       },
     },
   });
-};
+}
 
 class Effect extends Set {
   constructor(context) {
@@ -65,4 +65,3 @@ class Effect extends Set {
     };
   }
 }
-

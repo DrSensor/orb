@@ -9,13 +9,16 @@ export const resync = (orb) => {
   return sync(orb);
 };
 
-const eachother = (list, callback) =>
-  list.forEach((item, i) =>
-    list.forEach((item$, i$) => i !== i$ && callback(item, item$))
+const eachother = (ops, list, callback) =>
+  list[ops]((item, i) =>
+    list[ops]((item$, i$) => i !== i$ && callback(item, item$))
   );
 
+export const isLinked = (...orbs) =>
+  eachother("every", orbs, (orb, orb$) => orb.effect.has(orb$));
+
 export const link = (...orbs) =>
-  eachother(orbs, (orb, orb$) => orb.effect.add(orb$));
+  eachother("forEach", orbs, (orb, orb$) => orb.effect.add(orb$));
 
 export const unlink = (...orbs) =>
-  eachother(orbs, (orb, orb$) => orb.effect.delete(orb$));
+  eachother("forEach", orbs, (orb, orb$) => orb.effect.delete(orb$));
