@@ -1,5 +1,5 @@
 export const setEffect = (effect, orbs) =>
-  orbs.forEach((orb) => orb.onchange = effect);
+  orbs.forEach((orb) => orb.effect = effect);
 
 const jsxs = (context) => context.component === "toplevel"; // just example
 export const useEffect = (effect, orbs, when = jsxs) => { // seems complicated 😂

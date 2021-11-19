@@ -15,10 +15,11 @@ export default function Orb(self) {
     }
   };
 
-  const context = this ?? {};
+  let onchange;
+  const context = this ?? {}, effects = new Effect(context);
   const effect = async (value) => {
-    const finalize = await orb.onchange?.call(context, value), after = [];
-    for await (let effect of orb.effect) {
+    const finalize = await onchange?.call(context, value), after = [];
+    for await (let effect of effects) {
       if (isFunction(effect = effect.call(context, value))) after.push(effect);
     }
     for await (const effect of after) effect();
@@ -28,12 +29,12 @@ export default function Orb(self) {
 
   const cascade = (mkEffect) => {
     const orb$ = Orb.call(context, self);
-    orb.effect.add(mkEffect(orb$));
+    effects.add(mkEffect(orb$));
     return defineProperties(orb$, { inherit: { value: orb } });
   };
 
   return defineProperties(orb, {
-    effect: { value: new Effect(context) },
+    effect: { get: () => effects, set: (cb) => onchange = cb },
     initial: { value: self },
     value: { set: orb, get: orb },
     [toPrimitive]: { value: () => self },
