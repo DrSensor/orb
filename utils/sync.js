@@ -1,8 +1,8 @@
-export const insync = (orb) => orb.inherit?.effect.has(orb);
+export const insync = (orb) => orb.inherit?.effect.has(orb.set);
 
-export const sync = (orb) => orb.inherit?.effect.add(orb);
+export const sync = (orb) => orb.inherit?.effect.add(orb.set);
 
-export const unsync = (orb) => orb.inherit?.effect.delete(orb);
+export const unsync = (orb) => orb.inherit?.effect.delete(orb.set);
 
 export const resync = (orb) => {
   if (insync(orb)) unsync(orb);
@@ -15,10 +15,10 @@ const eachother = (ops, list, callback) =>
   );
 
 export const isLinked = (...orbs) =>
-  eachother("every", orbs, (orb, orb$) => orb.effect.has(orb$));
+  eachother("every", orbs, (orb, { set }) => orb.effect.has(set));
 
 export const link = (...orbs) =>
-  eachother("forEach", orbs, (orb, orb$) => orb.effect.add(orb$));
+  eachother("forEach", orbs, (orb, { set }) => orb.effect.add(set));
 
 export const unlink = (...orbs) =>
-  eachother("forEach", orbs, (orb, orb$) => orb.effect.delete(orb$));
+  eachother("forEach", orbs, (orb, { set }) => orb.effect.delete(set));
