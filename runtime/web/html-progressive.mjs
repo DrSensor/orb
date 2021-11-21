@@ -2,24 +2,51 @@ import "../index.js";
 
 Object.defineProperty(Element.prototype, "binds", {
   value(obj) {
-    const isScript = this instanceof HTMLScriptElement ||
-      this instanceof SVGScriptElement;
+    const scope =
+        this instanceof HTMLScriptElement || this instanceof SVGScriptElement
+          ? this.parentElement
+          : this,
+      bind = (orb, node) => orb?.effect.add((value) => node.nodeValue = value),
+      remove = (node) => node.parentElement.removeChild(node);
 
-    const endsWith = (haystack, needle) =>
-      `substring(${haystack},string-length(${haystack})-string-length(${needle})+1)=${needle}`;
-
-    const result = document.evaluate(
-      `.//@*[${endsWith("name()", "':'")}]`,
-      isScript ? this.parentElement : this,
-      null,
-      6, // UNORDERED_NODE_SNAPSHOT_TYPE
-    ); // TODO: schedule 👈 & 👇 using https://developer.mozilla.org/en-US/docs/Web/API/Background_Tasks_API#running_tasks
-
-    for (let i = 0; i < result.snapshotLength; i++) {
-      const { value, name, ownerElement } = result.snapshotItem(i);
-      const attr = document.createAttribute(name.slice(0, name.length - 1));
-      obj[value]?.effect.add((value) => attr.nodeValue = value);
-      ownerElement.removeAttribute(name);
+    for (
+      const { value, name, ownerElement } of snapshot(
+        "@*[substring(name(),string-length(name())-string-length(':')+1)=':']",
+      )
+    ) {
+      if (
+        bind(
+          obj[value],
+          document.createAttribute(name.slice(0, name.length - 1)),
+        )
+      ) {
+        ownerElement.removeAttribute(name);
+      }
     }
-  },
+
+    for (const comment of snapshot("comment()")) {
+      const { data, nextSibling } = comment;
+      for (const [name, orb] of Object.entries(obj)) {
+        if (data.startsWith(name)) {
+          remove(comment);
+          if (!data.endsWith("/")) {
+            let node = nextSibling;
+            while (
+              !node instanceof Comment || !node.data?.endsWith(`/${name}`)
+            ) {
+              node = remove(node).nextSibling;
+            }
+          }
+          bind(orb, new Text(orb));
+        }
+      }
+    }
+
+    function* snapshot(query) { // I wish CSS selector was powerful like XPath 😞
+      const result = document.evaluate(`.//${query}`, scope, null, 6);
+      for (let i = 0; i < result.snapshotLength; i++) {
+        yield result.snapshotItem(i);
+      }
+    }
+  }, // TODO: schedule all 👆 query and bindings using https://developer.mozilla.org/en-US/docs/Web/API/Background_Tasks_API#running_tasks
 });
