@@ -1,3 +1,4 @@
+import Orb from "../../factory.js";
 import "../index.js";
 
 Object.defineProperty(Element.prototype, "binds", {
@@ -14,14 +15,13 @@ Object.defineProperty(Element.prototype, "binds", {
         "@*[substring(name(),string-length(name())-string-length(':')+1)=':']",
       )
     ) {
-      if (
-        bind(
-          obj[value],
-          document.createAttribute(name.slice(0, name.length - 1)),
-        )
-      ) {
-        ownerElement.removeAttribute(name);
-      }
+      let ok;
+      const orb = obj[value], target = name.slice(0, name.length - 1);
+      if (orb instanceof Orb) {
+        const attr = document.createAttribute(target);
+        if (ok = !!bind(orb, attr)) ownerElement.setAttributeNode(attr);
+      } else if (ok = target in ownerElement) ownerElement[target] = orb;
+      if (ok) ownerElement.removeAttribute(name);
     }
 
     for (const comment of snapshot("comment()")) {
