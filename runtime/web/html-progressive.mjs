@@ -7,8 +7,7 @@ Object.defineProperty(Element.prototype, "binds", {
         this instanceof HTMLScriptElement || this instanceof SVGScriptElement
           ? this.parentElement
           : this,
-      bind = (orb, node) => orb?.effect.add((value) => node.nodeValue = value),
-      remove = (node) => node.parentElement.removeChild(node);
+      bind = (orb, node) => orb?.effect.add((value) => node.nodeValue = value);
 
     for (
       const { value, name, ownerElement } of snapshot(
@@ -25,19 +24,22 @@ Object.defineProperty(Element.prototype, "binds", {
     }
 
     for (const comment of snapshot("comment()")) {
-      const { data, nextSibling } = comment;
-      for (const [name, orb] of Object.entries(obj)) {
+      const { data, nextSibling, parentElement } = comment;
+      for (const [name, value] of Object.entries(obj)) {
         if (data.startsWith(name)) {
-          remove(comment);
           if (!data.endsWith("/")) {
             let node = nextSibling;
             while (
-              !node instanceof Comment || !node.data?.endsWith(`/${name}`)
+              !(node instanceof Comment && node.data?.endsWith(`/${name}`))
             ) {
-              node = remove(node).nextSibling;
+              node = parentElement.removeChild(node).nextSibling;
             }
+            parentElement.removeChild(node);
           }
-          bind(orb, new Text(orb));
+          let target;
+          if (value instanceof Orb) bind(value, target = new Text(value));
+          else if (value instanceof Element) target = value;
+          parentElement.replaceChild(comment, target);
         }
       }
     }
