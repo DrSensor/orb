@@ -25,18 +25,19 @@ Object.defineProperty(Element.prototype, "binds", {
         }
         if (ok) ownerElement.removeAttribute(name);
       } else { // is Comment
-        data = (data.endsWith("/") ? data.slice(0, data.length - 1) : data)
-          .trimEnd();
-        if (!data.endsWith("/")) {
+        const name = ((ok = data.endsWith("/"))
+          ? data.slice(0, data.length - 1)
+          : data).trimEnd();
+        if (!ok) {
           while (
             !(nextSibling instanceof Comment &&
-              nextSibling.data?.endsWith(`/${data}`))
+              nextSibling.data?.endsWith(`/${name}`))
           ) {
             nextSibling = parentElement.removeChild(nextSibling).nextSibling;
           }
           parentElement.removeChild(nextSibling);
         }
-        bind(obj[data], data = new Text(obj[data])); // if not orb then assume it's a literal value
+        bind(obj[name], data = new Text(obj[name])); // if not orb then assume it's a literal value
         parentElement.replaceChild(data, node);
       }
     }
