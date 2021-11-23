@@ -11,7 +11,7 @@ export default function Orb(self) {
     };
 
   let onchange;
-  const context = this ?? {}, effects = new Effect(context);
+  const context = this ?? {}, effects = new Set();
 
   const effect = async (value) => {
     const finalize = await onchange?.call(context, value), after = [];
@@ -48,18 +48,4 @@ export default function Orb(self) {
       },
     },
   });
-}
-
-class Effect extends Set {
-  constructor(context) {
-    super();
-    this.add = (item) => {
-      this.onadd?.(context);
-      return super.add(item);
-    };
-    this.delete = (item) => {
-      this.ondelete?.(context);
-      return super.delete(item);
-    };
-  }
 }

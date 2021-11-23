@@ -1,17 +1,6 @@
 export const setEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.effect = effect);
 
-const jsxs = (context) => context.component === "toplevel"; // just example
-export const useEffect = (effect, orbs, when = jsxs) => { // seems complicated 😂
-  let finalize;
-  for (const orb of orbs) {
-    Object.assign(orb.effect, {
-      onadd: (context) => when(context) && (finalize = effect(context)),
-      ondelete: () => finalize?.(),
-    });
-  }
-};
-
 /** **WARNING** very slow operation */
 export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
   orbs.forEach((orb) => {
@@ -22,14 +11,6 @@ export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
     }
     buffer.forEach(orb.effect.add);
   });
-
-/** **WARNING** generally faster but require orb.offect to be writable which is unsafe */
-// export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
-//   orbs.forEach((orb) => {
-//     const effects = Array.from(orb.effect);
-//     effects.splice(effects.indexOf(prevEffect), 1, newEffect);
-//     orb.effect = new Set(effects);
-//   });
 
 export class QueueEffect {
   constructor(deadline, size) {
