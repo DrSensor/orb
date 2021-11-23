@@ -1,4 +1,3 @@
-import Orb from "../../factory.js";
 import "../index.js";
 
 Object.defineProperty(Element.prototype, "binds", {
@@ -7,45 +6,43 @@ Object.defineProperty(Element.prototype, "binds", {
         this instanceof HTMLScriptElement || this instanceof SVGScriptElement
           ? this.parentElement
           : this,
-      bind = (orb, node) => orb?.effect.add((value) => node.nodeValue = value);
+      bind = (orb, node) => orb.effect?.add((value) => node.nodeValue = value);
 
     for (
-      const { value, name, ownerElement } of snapshot(
-        "@*[substring(name(),string-length(name())-string-length(':')+1)=':']",
+      const node of snapshot(
+        ".//@*[substring(name(),string-length(name())-string-length(':')+1)=':']|.//comment()",
       )
     ) {
-      let ok;
-      const orb = obj[value], target = name.slice(0, name.length - 1);
-      if (orb instanceof Orb) {
-        const attr = document.createAttribute(target);
-        if (ok = !!bind(orb, attr)) ownerElement.setAttributeNode(attr);
-      } else if (ok = target in ownerElement) ownerElement[target] = orb;
-      if (ok) ownerElement.removeAttribute(name);
-    }
+      let { value: ok, name, ownerElement, data, nextSibling, parentElement } =
+        node;
 
-    for (const comment of snapshot("comment()")) {
-      const { data, nextSibling, parentElement } = comment;
-      for (const [name, value] of Object.entries(obj)) {
-        if (data.startsWith(name)) {
-          if (!data.endsWith("/")) {
-            let node = nextSibling;
-            while (
-              !(node instanceof Comment && node.data?.endsWith(`/${name}`))
-            ) {
-              node = parentElement.removeChild(node).nextSibling;
-            }
-            parentElement.removeChild(node);
-          }
-          let target;
-          if (value instanceof Orb) bind(value, target = new Text(value));
-          else if (value instanceof Element) target = value;
-          parentElement.replaceChild(comment, target);
+      if (name) { // is Attr
+        const value = obj[ok], target = name.slice(0, name.length - 1);
+        if (ok = bind(value, data = document.createAttribute(target))) { // is orb
+          ownerElement.setAttributeNode;
+        } else if (ok = target in ownerElement) { // either event handler or literal value
+          ownerElement[target] = value;
         }
+        if (ok) ownerElement.removeAttribute(name);
+      } else { // is Comment
+        data = (data.endsWith("/") ? data.slice(0, data.length - 1) : data)
+          .trimEnd();
+        if (!data.endsWith("/")) {
+          while (
+            !(nextSibling instanceof Comment &&
+              nextSibling.data?.endsWith(`/${data}`))
+          ) {
+            nextSibling = parentElement.removeChild(nextSibling).nextSibling;
+          }
+          parentElement.removeChild(nextSibling);
+        }
+        bind(obj[data], data = new Text(obj[data])); // if not orb then assume it's a literal value
+        parentElement.replaceChild(data, node);
       }
     }
 
     function* snapshot(query) { // I wish CSS selector was powerful like XPath 😞
-      const result = document.evaluate(`.//${query}`, scope, null, 6);
+      const result = document.evaluate(query, scope, null, 6);
       for (let i = 0; i < result.snapshotLength; i++) {
         yield result.snapshotItem(i);
       }
