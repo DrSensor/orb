@@ -1,7 +1,6 @@
 const { defineProperties } = Object, S = Symbol;
 const isFunction = ($) => typeof $ == "function";
 
-Orb[S.hasInstance] = (instance) => instance.constructor == Orb;
 export default function Orb(self) {
   const get = () => self, // get current orb value
     orb = (transform) => cascade((set) => (value) => set(transform(value))), // cascading transformed orb
@@ -35,7 +34,6 @@ export default function Orb(self) {
     value: { set, get },
     set: { value: set },
     [S.toPrimitive]: { value: get },
-    constructor: { value: Orb },
     then: { // await orb effect before returning current orb value
       value(r) { // it's possible to do `await orb.then(value)` to await orb effect then change current orb value
         const isGet = isFunction(r), resolve = isGet ? r : () => self = r;
