@@ -1,5 +1,5 @@
-import Orb from "../factory.js";
-const { fromEntries, entries } = Object;
+import Orb, { $data } from "../factory.js";
+const { fromEntries, entries, defineProperty } = Object;
 
 export let id = 0;
 /** **Declare** ECS Component */
@@ -21,12 +21,15 @@ export default (SoA, size = 255) => {
       : mapSoA(([key, Type]) => [
         key,
         new.target
-          ? new Type($) // where $ is array size
-          : ((array) => {
-            const orb = Orb(array[$]); // where $ is entity id
-            orb.effect.add((value) => array[$] = value);
-            return orb;
-          })(struct[key] ??= new Type(size)),
+          ? new Type($) // where $ is array size, return a brand new struct of array
+          : ((array) =>
+            defineProperty(Orb(array[$]), $data, { // where $ is entity id, return struct of orb at current entity id
+              get: () => array[$],
+              set(value) {
+                array[$] = value;
+              },
+              configurable: false,
+            }))(struct[key] ??= new Type(size)),
       ]);
   }
   return Component;

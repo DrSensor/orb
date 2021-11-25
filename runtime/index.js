@@ -1,9 +1,10 @@
-import orb from "../factory.js";
+import Orb, { $data } from "../factory.js";
+const { defineProperty } = Object;
 
 [Number, String, BigInt].forEach(({ prototype: $ }) =>
-  Object.defineProperty($, Symbol.iterator, {
+  defineProperty($, Symbol.iterator, {
     *value() {
-      yield orb(this);
+      yield defineProperty(Orb(this), $data, { configurable: false });
     },
   })
 );
