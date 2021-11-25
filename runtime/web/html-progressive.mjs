@@ -1,4 +1,5 @@
 import "../index.js";
+import { effect } from "./addons.js";
 
 Object.defineProperty(Element.prototype, "binds", {
   value(obj) {
@@ -6,7 +7,8 @@ Object.defineProperty(Element.prototype, "binds", {
         this instanceof HTMLScriptElement || this instanceof SVGScriptElement
           ? this.parentElement
           : this,
-      bind = (orb, node) => orb.effect?.add((value) => node.nodeValue = value);
+      bind = (orb, node) =>
+        orb.effect?.add(effect((value) => node.nodeValue = value));
 
     for (
       const node of snapshot(
