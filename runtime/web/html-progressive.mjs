@@ -1,4 +1,4 @@
-import "../index.js";
+import "../core.js";
 import { effect } from "./addons.js";
 
 Object.defineProperty(Element.prototype, "binds", {

@@ -1,4 +1,4 @@
-import Orb, { $data } from "../factory.js";
+import Orb, { $data } from "../object.js";
 const { fromEntries, entries, defineProperty } = Object;
 
 export let id = 0;
