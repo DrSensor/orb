@@ -50,3 +50,22 @@ export class QueueEffect {
 }
 
 export const [queue, flush] = new QueueEffect();
+
+export const delay = (ms) =>
+  (effect) =>
+    function () {
+      return new Promise((resolve) =>
+        setTimeout(() => resolve(effect.apply(this, arguments)), ms)
+      );
+    };
+
+export const debounce = (ms) =>
+  (effect) => {
+    let timeout;
+    return function () {
+      clearTimeout(timeout);
+      return new Promise((resolve) =>
+        timeout = setTimeout(() => resolve(effect.apply(this, arguments)), ms)
+      );
+    };
+  };
