@@ -1,6 +1,11 @@
 export const setEffect = (effect, orbs) =>
   orbs.forEach((orb) => orb.effect = effect);
 
+export const unsetEffect = (orbs, effect) =>
+  orbs.forEach((orb) =>
+    (!effect || effect == orb.effect) && (orb.effect = undefined)
+  );
+
 /** **WARNING** very slow operation */
 export const replaceEffect = (prevEffect, newEffect, ...orbs) =>
   orbs.forEach((orb) => {
