@@ -1,7 +1,9 @@
+import { $data } from "./override.js";
+export { default as override } from "./override.js";
+
 const { defineProperties } = Object, S = Symbol;
 const isFunction = ($) => typeof $ == "function";
 
-export const $data = Symbol();
 export default function Orb(self) {
   const get = () => orb[$data], // get current orb value
     orb = (transform) => cascade((set) => (value) => set(transform(value))), // cascading transformed orb
@@ -11,7 +13,7 @@ export default function Orb(self) {
     };
 
   let onchange;
-  const context = this ?? {}, effects = new Set();
+  const context = this ?? {}, effects = new Set(); // PERF: beware of dangling object (unused memory)
 
   const effect = async (value) => {
     const finalize = await onchange?.call(context, value), after = [];
