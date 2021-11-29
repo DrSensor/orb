@@ -8,7 +8,7 @@ export default (self) => {
 
   orb[$data] = self;
   return defineProperties(orb, {
-    value: { set, get },
+    let: { set, get },
     set: { value: set },
     [S.toPrimitive]: { value: get },
   });

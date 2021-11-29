@@ -1,7 +1,7 @@
 export const reset = (orb) => orb(orb.initial);
 
 export const isLiteOrb = (orb) => {
-  const { value, set, [Symbol.toPrimitive]: get } = Object
+  const { let: value, set, [Symbol.toPrimitive]: get } = Object
     .getOwnPropertyDescriptors(orb);
   return value.set === set.value && value.get === get.value;
 };

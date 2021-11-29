@@ -35,7 +35,7 @@ export default function Orb(self) {
   return defineProperties(orb, {
     effect: { get: () => effects, set: (cb) => onchange = cb },
     initial: { value: self },
-    value: { set, get },
+    let: { set, get },
     set: { value: set },
     [S.toPrimitive]: { value: get },
     then: { // await orb effect before returning current orb value
