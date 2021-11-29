@@ -1,5 +1,5 @@
-import { $data } from "./override.js";
-export { default as override } from "./override.js";
+import $data from "./utils.js";
+export * from "./utils.js";
 
 const { defineProperties } = Object, S = Symbol;
 const isFunction = ($) => typeof $ == "function";

@@ -1,10 +1,5 @@
-import Orb, { $data } from "../object.js";
-const { defineProperty } = Object;
+import Orb, { enableCascading, override } from "../object.js";
 
 [Number, String, BigInt].forEach(({ prototype: $ }) =>
-  defineProperty($, Symbol.iterator, {
-    *value() {
-      yield defineProperty(Orb(this), $data, { configurable: false });
-    },
-  })
+  enableCascading($, (self) => override(Orb(self), { configurable: false }))
 );
