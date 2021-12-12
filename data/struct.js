@@ -1,9 +1,9 @@
-import Orb from "./object.js";
-const O = Object, map = (o, cb) => O.fromEntries(O.entries(o).map(cb));
+import Orb from "./primitive.js";
+const O = Object, map = (o, to) => O.fromEntries(O.entries(o).map(to));
 
 export default function (struct, depth = 1) {
   const transform = (level) =>
-    ([key, value]) => [
+    ([key, value]) => [ // TODO: refactor into property descriptor { get: () => orb, set: orb.set }
       key,
       typeof value == "object" && level < depth
         ? map(value, transform(++level))

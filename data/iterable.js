@@ -1,4 +1,4 @@
-import Orb from "./object.js";
+import Orb from "./primitive.js";
 
 const none = (object) => object, { iterator } = Symbol;
 

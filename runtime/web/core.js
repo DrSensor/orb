@@ -1,4 +1,4 @@
-import Orb, { enableCascading, override } from "../../lite.js";
+import Orb, { enableCascading, override } from "../../data/lite.js";
 
 enableCascading(Element.prototype.constructor, (self) => {
   const orb = Orb((value) => element = value); // because attribute `$:let` only accept setter function

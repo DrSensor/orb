@@ -1,4 +1,4 @@
-import Orb, { $data } from "../object.js";
+import Orb, { override } from "../data/primitive.js";
 const { fromEntries, entries, defineProperty } = Object;
 
 export let id = 0;
