@@ -4,9 +4,10 @@ export * from "./utils.js";
 const { defineProperties } = Object, S = Symbol;
 
 export default (self) => {
-  const orb = {}, get = () => orb[$data], set = (value) => orb[$data] = value;
-
-  orb[$data] = self;
+  const isFn = typeof self == "function";
+  const orb = typeof self == "object" || isFn ? self : {};
+  const get = () => orb[$data], set = (value) => orb[$data] = value;
+  if (!isFn) orb[$data] = self;
   return defineProperties(orb, {
     let: { set, get },
     set: { value: set },
