@@ -6,7 +6,15 @@ import {
   toPrimitive,
 } from "./_internal.js";
 
-export default function Orb(self) {
+export const sequential = (effects) => effects;
+export const concurrent = async (effects) =>
+  (await Promise.allSettled(effects)).map((a) => a.value);
+
+export default function Orb(
+  self,
+  effectResolver = sequential,
+  afterEffectResolver = effectResolver,
+) {
   const get = () => orb[$data], // get current orb value
     orb = (transform) => cascade((set) => (value) => set(transform(value))), // cascading transformed orb
     set = (value) => ( // change current orb value
@@ -18,10 +26,10 @@ export default function Orb(self) {
 
   const effect = async (value) => {
     const finalize = await onchange?.call(context, value), after = [];
-    for await (let effect of effects) {
+    for await (let effect of await effectResolver(effects)) {
       if (isFunction(effect = effect.call(context, value))) after.push(effect);
     }
-    for await (const effect of after) effect();
+    for await (const effect of await afterEffectResolver(after)) effect();
     await finalize?.();
     return value;
   };
