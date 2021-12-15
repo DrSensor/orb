@@ -5,16 +5,15 @@ const at = (n) => (t) => t[n];
 
 let id = 0n;
 export const build = (element, props, children) =>
-  !hasNamespace(element) && [
+  !hasNamespace(element) && ((effectProps) => [
     [id].concat(children.map(at(0))),
 
-    `<${element} _="${id++}" ${
+    `<${element} ${effectProps.length ? `_="${id++}"` : ""} ${
       props.map(([attr, value]) => `${attr}="${value}"`)
     }>` + children.map(at(1)).join("") + `</${element}>`,
 
-    [props.filter(([, value]) => typeof value == "function")] // only pass reactive props and event handler
-      .concat(children.map(at(2))), // 👆 orb passed to JSX props is always a function (to support "cascading transformed orb" syntax)
-  ];
+    [effectProps].concat(children.map(at(2))), // only pass reactive props and event handler
+  ])(props.filter(([, value]) => typeof value == "function")); //👈 orb passed to JSX props is always a function (to support "cascading transformed orb" syntax)
 
 const attach = (element, children) => {
   for (const child of children) {
