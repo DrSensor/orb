@@ -1,4 +1,4 @@
-import Orb from "./primitive.js";
+import Orb from "./reactive.js";
 import { isFunction, isObject, iterator, O } from "./_internal.js";
 const map = ($, to) => O.fromEntries(O.entries($).map(to));
 

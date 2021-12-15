@@ -1,4 +1,4 @@
-import Orb from "./primitive.js";
+import Orb from "./reactive.js";
 import { isFunction, isObject, iterator } from "./_internal.js";
 const none = (object) => object;
 
