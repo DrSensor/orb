@@ -3,12 +3,13 @@ import {
   defineProperties,
   isFunction,
   iterator,
+  O,
   toPrimitive,
 } from "./_internal.js";
 
-export const sequential = (effects) => effects;
+export const sequential = (effects) => [, effects];
 export const concurrent = async (effects) =>
-  (await Promise.allSettled(effects)).map((a) => a.value);
+  (await Promise.allSettled(effects)).map(O.values);
 
 export default function Orb(
   self,
@@ -21,16 +22,29 @@ export default function Orb(
       orb[$data] !== value && effect(value), orb[$data] = value
     );
 
-  let onchange;
-  const context = this ?? {}, effects = new Set(); // PERF: beware of dangling object (unused memory)
+  let onchange, errors;
+  const context = this ?? {},
+    throwAll = (e) => errors.forEach((reject) => reject(e)),
+    effects = new Set(); // PERF: beware of dangling object (unused memory)
 
   const effect = async (value) => {
-    const finalize = await onchange?.call(context, value), after = [];
-    for await (let effect of await effectResolver(effects)) {
-      if (isFunction(effect = effect.call(context, value))) after.push(effect);
+    try {
+      let status, effect;
+      const isError = () => errors && status === "rejected";
+      const finalize = await onchange?.call(context, value), after = [];
+      for await ([status, effect] of await effectResolver(effects)) {
+        isError()
+          ? throwAll(effect)
+          : isFunction(effect = effect.call(context, value)) &&
+            after.push(effect);
+      }
+      for await ([status, effect] of await afterEffectResolver(after)) {
+        isError() ? throwAll(effect) : effect();
+      }
+      await finalize?.();
+    } catch (error) {
+      throwAll(error);
     }
-    for await (const effect of await afterEffectResolver(after)) effect();
-    await finalize?.();
     return value;
   };
 
@@ -53,6 +67,7 @@ export default function Orb(
         return effect(isGet ? orb[$data] : r).then(resolve);
       },
     },
+    catch: { value: (reject) => (errors ??= new Set()).add(reject) },
     [iterator]: { // cascading orb
       *value() {
         yield cascade((set) => set);
