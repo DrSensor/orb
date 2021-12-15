@@ -1,21 +1,15 @@
 import Orb from "./primitive.js";
-
-const none = (object) => object, { iterator } = Symbol;
-
-const createIterator = (iterable, forEach) => ({
-  *[iterator]() {
-    for (const value of iterable) yield* forEach(value);
-  },
-});
+import { isFunction, isObject, iterator } from "./_internal.js";
+const none = (object) => object;
 
 export default function (iterable, transformObject = none) {
   const context = this;
   return createIterator(iterable, function* (value) {
-    if (typeof value == "object") {
+    if (isObject(value)) {
       const result = transformObject.call(context, value);
       result[iterator] ? yield* result : yield result;
     } else {
-      yield (typeof value != "function" ? Orb.call(context, value) : value);
+      yield (!isFunction(value) ? Orb.call(context, value) : value);
     }
   });
 }
@@ -39,3 +33,9 @@ export const flatten = (depth, transformObject = none) =>
         : yield object
       : yield transformObject.call(this.object);
   };
+
+const createIterator = (iterable, forEach) => ({
+  *[iterator]() {
+    for (const value of iterable) yield* forEach(value);
+  },
+});

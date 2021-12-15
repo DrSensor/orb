@@ -1,19 +1,26 @@
-import $data from "./utils.js";
-export * from "./utils.js";
-
-const { defineProperties } = Object, S = Symbol;
+import {
+  $data,
+  defineProperties,
+  isFunction,
+  isObject,
+  toPrimitive,
+} from "./_internal.js";
 
 export default (self) => {
-  const isFn = typeof self == "function";
-  const orb = typeof self == "object" || isFn ? self : {};
-  const get = () => orb[$data], set = (value) => orb[$data] = value;
+  const isFn = isFunction(self),
+    orb = isObject(self) || isFn ? self : {},
+    get = () => orb[$data],
+    set = (value) => orb[$data] = value;
+
   if (!isFn) orb[$data] = self;
+
   return defineProperties(orb, {
     let: { set, get },
     set: { value: set },
-    [S.toPrimitive]: { value: get },
+    [toPrimitive]: { value: get },
   });
 };
 
+export * from "./utils.js";
 export const setInitialValue = (orb, value) =>
   defineProperties(orb, { initial: { value } });

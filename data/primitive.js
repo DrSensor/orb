@@ -1,16 +1,17 @@
-import $data from "./utils.js";
-export * from "./utils.js";
-
-const { defineProperties } = Object, S = Symbol;
-const isFunction = ($) => typeof $ == "function";
+import {
+  $data,
+  defineProperties,
+  isFunction,
+  iterator,
+  toPrimitive,
+} from "./_internal.js";
 
 export default function Orb(self) {
   const get = () => orb[$data], // get current orb value
     orb = (transform) => cascade((set) => (value) => set(transform(value))), // cascading transformed orb
-    set = (value) => { // change current orb value
-      if (orb[$data] !== value) effect(value);
-      return orb[$data] = value;
-    };
+    set = (value) => ( // change current orb value
+      orb[$data] !== value && effect(value), orb[$data] = value
+    );
 
   let onchange;
   const context = this ?? {}, effects = new Set(); // PERF: beware of dangling object (unused memory)
@@ -37,14 +38,14 @@ export default function Orb(self) {
     initial: { value: self },
     let: { set, get },
     set: { value: set },
-    [S.toPrimitive]: { value: get },
+    [toPrimitive]: { value: get },
     then: { // await orb effect before returning current orb value
       value(r) { // it's possible to do `await orb.then(value)` to await orb effect then change current orb value
         const isGet = isFunction(r), resolve = isGet ? r : () => orb[$data] = r;
         return effect(isGet ? orb[$data] : r).then(resolve);
       },
     },
-    [S.iterator]: { // cascading orb
+    [iterator]: { // cascading orb
       *value() {
         yield cascade((set) => set);
       },

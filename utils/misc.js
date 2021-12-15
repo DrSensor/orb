@@ -1,16 +1,19 @@
-export const reset = (orb) => orb(orb.initial);
+export const reset = (orb) => orb.set(orb.initial);
 
-export const isLiteOrb = (orb) => {
+export const isOpaque = (orb) => {
   const { let: value, set, [Symbol.toPrimitive]: get } = Object
     .getOwnPropertyDescriptors(orb);
   return value.set === set.value && value.get === get.value;
 };
 
 export const isOrb = (orb) =>
-  isLiteOrb(orb) &&
+  isOpaque(orb) &&
   ["object", "function"].some((type) => type == typeof orb.effect);
 
-export const cascade = (orb) => {
+export const cascade = (orb) => ([orb] = orb, orb);
+
+export const take = (orb) => {
   const [orb$] = orb;
+  orb.effect?.delete(orb$.set);
   return orb$;
 };
