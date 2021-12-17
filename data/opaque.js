@@ -8,7 +8,7 @@ import {
 
 export default (self) => {
   const isFn = isFunction(self),
-    orb = isObject(self) || isFn ? self : {},
+    orb = isFn || isObject(self) ? self : {},
     get = () => orb[$data],
     set = (value) => orb[$data] = value;
 
@@ -22,5 +22,12 @@ export default (self) => {
 };
 
 export * from "./utils.js";
+
 export const setInitialValue = (orb, value) =>
   defineProperties(orb, { initial: { value } });
+
+export const enableStoringEffect = (
+  orb,
+  SetLike,
+  set = (effect) => SetLike.add(effect),
+) => defineProperties(orb, { effect: { get: () => SetLike, set } });
