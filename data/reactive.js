@@ -24,27 +24,29 @@ export default function Orb(
 
   let onchange, errors;
   const context = this ?? {},
-    throwAll = (e) => errors.forEach((reject) => reject(e)),
-    effects = new Set(); // PERF: beware of dangling object (unused memory)
+    effects = new Set(), // PERF: beware of dangling object (unused memory)
+    throwAll = (e) => errors.forEach((reject) => reject(e));
 
   const effect = async (value) => {
+    const errorPool = [], queueError = (e) => errorPool.push(e);
     try {
       let status, effect;
       const isError = () => errors && status === "rejected";
       const finalize = await onchange?.call(context, value), after = [];
       for await ([status, effect] of await effectResolver(effects)) {
         isError()
-          ? throwAll(effect)
+          ? queueError(effect)
           : isFunction(effect = effect.call(context, value)) &&
             after.push(effect);
       }
       for await ([status, effect] of await afterEffectResolver(after)) {
-        isError() ? throwAll(effect) : effect();
+        isError() ? queueError(effect) : effect();
       }
       await finalize?.();
     } catch (error) {
       throwAll(error);
     }
+    errorPool.length > 0 && throwAll(errorPool);
     return value;
   };
 
