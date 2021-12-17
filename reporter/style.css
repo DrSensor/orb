@@ -1,0 +1,50 @@
+#mocha,
+#mocha-stats,
+#mocha-stats em {
+    background: #1c1b22;
+    color     : whitesmoke;
+}
+
+#mocha-stats>.passes {
+    --shadow: lime;
+}
+
+#mocha-stats>.failures {
+    --shadow: red;
+}
+
+#mocha-stats>.duration {
+    --shadow: wheat;
+}
+
+#mocha-stats li {
+    color      : white;
+    text-shadow: -1px -.5px var(--shadow)
+}
+
+
+#mocha-stats canvas {
+    filter: invert(1);
+}
+
+#mocha li.test>* {
+    font-size: 1rem;
+}
+
+#mocha .test.fail h2 {
+    font-weight: revert;
+}
+
+#mocha .test.fail pre {
+    color: rgb(255, 81, 0);
+}
+
+#mocha .test a.replay {
+    color      : white;
+    font-size  : 2em;
+    line-height: .9em;
+    width      : 20px;
+    height     : 20px;
+    background : #6b6b6b;
+    opacity    : .7;
+}

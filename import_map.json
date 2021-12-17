@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "referee": "https://esm.sh/@sinonjs/referee?bundle",
+    "mocha": "https://esm.sh/mocha?bundle"
+  }
+}
