@@ -10,10 +10,11 @@ import "./reporter/clean-trace.js";
 test.traceIgnores = [
   "config.js",
   "mocha.bundle.js",
-  "referee.bundle.js",
+  "unexpected.js",
 ];
 
-await Promise.allSettled([
+// TODO: replace with `new Worker(URL.createObjectURL(...),{type:"module"})` when Firefox support it
+await Promise.all([
   // import("test/something.js")
 ]);
 
