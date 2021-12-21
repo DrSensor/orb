@@ -1,15 +1,17 @@
 <head>
-    <meta charset="utf-8" />
-    <title>Orb Tests</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <title>Tests Result</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://esm.sh/mocha/mocha.css" />
-    <link rel="stylesheet" href="reporter/style.css" />
+    <link rel="stylesheet" href="https://esm.sh/mocha/mocha.css">
+    <link rel="stylesheet" href="reporter/style.css">
+
+    <link rel="modulepreload" href="https://esm.sh/mocha?bundle">
 
     <script async type="module" src="https://esm.sh/es-module-shims/wasm"></script>
     <script type="importmap-shim" src="import_map.json"></script>
 
-    <script type="module-shim" src="config.js"></script>
+    <script async type="module-shim" src="test.config.js"></script>
 </head>
 
 <body>

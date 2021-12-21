@@ -1,8 +1,13 @@
-#mocha,
+body,
 #mocha-stats,
 #mocha-stats em {
     background: #1c1b22;
     color     : whitesmoke;
+}
+
+#mocha pre.error {
+    margin-top: 10px !important;
+    max-width : fit-content;
 }
 
 #mocha-stats>.passes {
@@ -21,7 +26,6 @@
     color      : white;
     text-shadow: -1px -.5px var(--shadow)
 }
-
 
 #mocha-stats canvas {
     filter: invert(1);

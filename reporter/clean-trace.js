@@ -68,8 +68,7 @@ function __mocha_internal__cleanError (e) {
     return list;
   }, []);
 
-  e.stack = "\n" + stack.join('\n');
-  e.name = ""
+  e.stack = stack.join('\n');
 
   return e;
 }
