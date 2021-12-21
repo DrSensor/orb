@@ -1,4 +1,4 @@
-import { combine } from "./utils/config.js";
+import { combine, merge } from "./utils/config.js";
 import { importResolve, importTransform } from "./utils/hooks.js";
 
 const jsconfig = { ext: ".js", skip: true },
@@ -45,7 +45,10 @@ window.esmsInitOptions = {
   fetch: importTransform({ // NOTE: mostly non .js extension like .jsx .ts .tsx not served with header Content-Type: text/javascript
     // subtype: "javascript",
     basename: /\.(jsx|tsx?)$/, // optional fallback if subtype fail
-    transform: (source, config) => swc.transformSync(source, config).code,
+    transform: (source, config, params) => {
+      if (params.jsx) merge(config.jsc.transform.react, params.jsx);
+      return swc.transformSync(source, config).code;
+    },
     rules: [/* jsconfig, */ jsxconfig, tsconfig, tsxconfig],
   }),
 };
@@ -55,3 +58,6 @@ import * as swc from "https://esm.sh/@swc/wasm-web";
 swc.default("https://esm.sh/@swc/wasm-web/wasm_bg.wasm").then(() =>
   import("https://esm.sh/es-module-shims/wasm")
 );
+
+// TODO: support both babel and swc via URL params (e.g import("./test/a.jsx?babel"))
+// import Babel from "https://esm.sh/@babel/standalone";

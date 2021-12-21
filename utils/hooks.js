@@ -1,3 +1,5 @@
+import { parseURLSearchParams as parse } from "./config.js";
+
 const once = (fn) => once.cache ??= fn(), fresh = (fn) => fn();
 
 export const importResolve = (cdn, get = once) =>
@@ -10,11 +12,11 @@ export const importResolve = (cdn, get = once) =>
 
 export const importTransform = (...configs) =>
   !configs.length ? undefined : async (url, options) => {
-    const { origin, pathname } = new URL(url),
+    const { origin, pathname, searchParams } = new URL(url),
       response = await fetch(origin + pathname, options);
 
     if (!response.ok) return response;
-    let type, filename;
+    let type, filename, params;
     for (const { subtype, basename, transform, rules } of configs) {
       if (subtype) type = response.headers.get("Content-Type").split(";")[0];
       if (basename) filename = pathname.split("/").at(-1);
@@ -22,7 +24,13 @@ export const importTransform = (...configs) =>
         let source = await response.text();
         for (const { ext, skip, ...config } of rules) {
           if (filename.endsWith(ext)) {
-            if (!skip) source = transform(source, config);
+            if (!skip) {
+              source = transform(
+                source,
+                config,
+                params ??= parse(searchParams),
+              );
+            }
             break;
           }
         }
