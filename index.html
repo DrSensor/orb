@@ -6,12 +6,13 @@
     <link rel="stylesheet" href="https://esm.sh/mocha/mocha.css">
     <link rel="stylesheet" href="reporter/style.css">
 
+    <link rel="modulepreload" href="https://esm.sh/es-module-shims/wasm">
     <link rel="modulepreload" href="https://esm.sh/mocha?bundle">
 
-    <script async type="module" src="https://esm.sh/es-module-shims/wasm"></script>
     <script type="importmap-shim" src="import_map.json"></script>
 
     <script async type="module-shim" src="test.config.js"></script>
+    <script async type="module" src="shim.config.js"></script>
 </head>
 
 <body>
