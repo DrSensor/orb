@@ -29,13 +29,30 @@ export const importTransform = (...configs) =>
                 source,
                 config,
                 params ??= parse(searchParams),
+                url,
               );
             }
             break;
           }
         }
-        const blob = new Blob([source], { type: "text/javascript" });
-        return Object.defineProperty(new Response(blob), "url", { value: url });
+        // let { code, map } = source;
+        // if (map) {
+        //   // if (typeof map == "string") map = JSON.parse(map);
+        //   // TODO: support ?bundle params which require map.sourceRoot=origin, map.file=`shim://${}`, and resolving multiple map.sources
+        //   // map.sourceRoot = origin;
+        //   // map.sources[0] = pathname.slice(1, pathname.length);
+        //   // map.file = pathname.replace(/\.\w+$/i, ".js");
+        //   // TODO: check if map.sourcesContent exists
+        //   // WARNING: sourceMappingURL will never support blob url https://bugs.chromium.org/p/chromium/issues/detail?id=492586
+        //   // code += `\n//# sourceMappingURL=data:,${
+        //   //   JSON.stringify(map).replace(/\s/g, "")
+        //   // }`;
+        // }
+        // source = new Blob([code ?? source], { type: "text/javascript" });
+        source = new Blob([source], { type: "text/javascript" });
+        return Object.defineProperty(new Response(source), "url", {
+          value: url,
+        });
       }
     }
     return response;
