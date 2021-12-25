@@ -41,8 +41,8 @@ const jsconfig = { ext: ".js", skip: true },
 window.esmsInitOptions = {
   shimMode: true,
   noLoadEventRetriggers: true,
-  // revokeBlobURLs: true,
-  skip: /^https?:\/\/(cdn\.skypack\.dev|jspm\.dev|ga\.jspm\.io|esm\.sh)\//,
+  revokeBlobURLs: true,
+  skip: /^https?:\/\/(cdn\.)?((skypack|jspm)\.dev|esm\.sh)\//,
   resolve: importResolve("esm.sh"),
   fetch: importTransform({ // NOTE: mostly non .js extension like .jsx .ts .tsx not served with header Content-Type: text/javascript
     // subtype: "javascript",

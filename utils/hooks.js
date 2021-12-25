@@ -2,6 +2,7 @@ import { parseURLSearchParams as parse } from "./config.js";
 
 const once = (fn) => once.cache ??= fn(), fresh = (fn) => fn();
 
+/// BUG: doesn't resolve importmap "scope" which break ga.jspm.io
 export const importResolve = (cdn, get = once) =>
   (id, parentUrl, resolve) => {
     const { imports } = get(importShim.getImportMap);
