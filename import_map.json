@@ -1,6 +1,6 @@
 {
   "imports": {
-    "mocha": "https://esm.sh/mocha?bundle",
+    "mocha": "https://esm.sh/mocha?bundle&pin=v58",
     "unexpected": "https://esm.sh/unexpected",
     "orb/": "/orb/"
   }
