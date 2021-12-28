@@ -43,7 +43,7 @@ window.esmsInitOptions = {
   noLoadEventRetriggers: true,
   revokeBlobURLs: true,
   skip: /^https?:\/\/(cdn\.)?((skypack|jspm)\.dev|esm\.sh)\//,
-  resolve: importResolve("esm.sh"),
+  // resolve: importResolve("esm.sh"),
   fetch: importTransform({ // NOTE: mostly non .js extension like .jsx .ts .tsx not served with header Content-Type: text/javascript
     // subtype: "javascript",
     basename: /\.(jsx|tsx?)$/, // optional fallback if subtype fail
