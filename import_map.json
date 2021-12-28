@@ -1,5 +1,6 @@
 {
   "imports": {
-    "mocha": "https://esm.sh/mocha?bundle"
+    "mocha": "https://esm.sh/mocha?bundle",
+    "orb/": "/orb/"
   }
 }
