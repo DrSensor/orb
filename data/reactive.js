@@ -1,17 +1,29 @@
 import {
   $data,
   defineProperties,
+  isAsync,
   isFunction,
   iterator,
-  O,
   toPrimitive,
 } from "./_internal.js";
 
-export const sequential = (effects) => [, effects];
-export const concurrent = async (effects) =>
-  (await Promise.allSettled(effects)).map(O.values);
+export function* sequential(effects) {
+  for (const effect of effects) yield [, effect];
+}
 
-export default function Orb(
+// BUG: concurrent mode only works on effect as Async IIFE but not as Async Function
+// logically `orb.effect.add((async () => {})())` executed concurrently while `orb.effect.add(async () => {})` are executed in sequence
+export async function* concurrent(effects) {
+  for (const { status, reason, value } of await Promise.allSettled(effects)) {
+    yield [status, value ?? reason];
+  }
+}
+
+export async function* concurrentFailFast(effects) {
+  for (const effect of await Promise.all(effects)) yield [, effect];
+}
+
+export default function Reactive(
   self,
   effectResolver = sequential,
   afterEffectResolver = effectResolver,
@@ -25,24 +37,33 @@ export default function Orb(
   let onchange, errors;
   const context = this ?? {},
     effects = new Set(), // PERF: beware of dangling object (unused memory)
-    throwAll = (e) => errors.forEach((reject) => reject(e));
+    throwAll = (e) => {
+      if (errors) errors.forEach((reject) => reject(e));
+      else throw e; // pass it to stack trace
+    };
 
   const effect = async (value) => {
     const errorPool = [], queueError = (e) => errorPool.push(e);
-    try {
-      let status, effect;
-      const isError = () => errors && status === "rejected";
-      const finalize = await onchange?.call(context, value), after = [];
-      for await ([status, effect] of await effectResolver(effects)) {
+    try { // INFO: it's impossible to have `f = tryAwait(f)` without invoking `await` in sequential mode
+      let finalize = onchange?.call(context, value), status, effect;
+      const isError = () => errors && status === "rejected", after = [];
+      for ([status, effect] of effectResolver(effects)) {
+        isError() ? queueError(effect) : isFunction(
+          isAsync(effect = effect.call(context, value))
+            ? effect = await effect
+            : effect,
+        ) &&
+          after.push(effect);
+      }
+      value = orb[$data];
+      for ([status, effect] of afterEffectResolver(after)) {
         isError()
           ? queueError(effect)
-          : isFunction(effect = effect.call(context, value)) &&
-            after.push(effect);
+          : isAsync(effect = effect(value)) && await effect;
       }
-      for await ([status, effect] of await afterEffectResolver(after)) {
-        isError() ? queueError(effect) : effect();
+      if (isFunction(isAsync(finalize) ? await finalize : finalize)) {
+        await finalize(value);
       }
-      await finalize?.();
     } catch (error) {
       throwAll(error);
     }
@@ -51,7 +72,7 @@ export default function Orb(
   };
 
   const cascade = (mkEffect) => {
-    const orb$ = Orb.call(context, orb[$data]);
+    const orb$ = Reactive.call(context, orb[$data]);
     effects.add(mkEffect(orb$.set));
     return defineProperties(orb$, { inherit: { value: orb } });
   };
