@@ -35,6 +35,8 @@ const attach = (element, children) => {
   }
 };
 
+// TODO: export function for streaming template tree build
+
 export const createOnNamespace = create.ifHasNamespace(attach);
 
 export const createOnElement = create.ifElement(attach);

@@ -10,6 +10,7 @@ export const build = (element, props, children) =>
     ), [[], []]),
   ];
 
+// TODO: add high-order-function to override dynamicProps binding for used in consumer worker
 const attach = (element, children) => {
   for (let child of children) {
     if (Array.isArray(child)) {

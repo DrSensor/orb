@@ -38,3 +38,21 @@ export const createOnDocumentFragment = create.ifDocumentFragment(
       )
     ),
 );
+
+/*
+// example
+<DocumentFragment append>
+  <button>{count}</button>
+</DocumentFragment>
+
+<!--[description]
+element = instanceof DocumentFragment
+directives = ["append"]
+children = instanceof[HTMLButtonElement]
+-->
+
+// same as
+new DocumentFragment().append(
+  (button = document.createElement("button"), button.append(child_1 = new Text(count)), count.effect.add(value => child_1.nodeValue = value), button)
+)
+*/
