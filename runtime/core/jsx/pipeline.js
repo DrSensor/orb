@@ -7,11 +7,12 @@ export default (mode, ...jsxFactories) =>
       children = children[Symbol.iterator] ? children : [children];
     } else children = args;
 
-    args = [props].concat(children, runtime, args);
+    args = [Object.entries(props ?? {}), children, runtime, args];
     for (let create of jsxFactories) {
-      element = create.apply(call, [element].concat(args)) ?? element;
+      var result = create.apply(call, [element].concat(args)) ?? element;
       if (typeof (create = call.effect?.()) == "function") after.push(create);
+      if (result) break; // call.prev = result; // WARNING: it still unknown how to automatically free(call.prev)
     }
     for (const effect of after) effect?.();
-    return element;
+    return result;
   }; // 👈 effect Map should be evicted here

@@ -4,7 +4,9 @@ import * as create from "./create-element.js";
 const attach = (element, attach, children, namespaceURI) =>
   element[attach](
     ...children.map((create) =>
-      create?.(namespaceURI ?? element.namespaceURI) ?? create
+      typeof create == "function"
+        ? create(namespaceURI ?? element.namespaceURI)
+        : create
     ),
   ); //👆 batched but doesn't work with decorator
 // children.forEach((create) =>
@@ -16,7 +18,7 @@ const append = (element, children) => attach(element, "append", children);
 export { HTML, SVG } from "./create-element.js";
 
 export const build = (element, props, children) =>
-  !hasNamespace(element) &&
+  typeof element == "string" && !hasNamespace(element) &&
   ((namespaceURI) => (
     element = bindElementNS(namespaceURI, element, props),
       append(element, children),

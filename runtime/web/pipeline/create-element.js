@@ -6,20 +6,22 @@ const URI = { html: HTML, svg: SVG };
 
 export const ifHasNamespace = (handleChildren) =>
   (element, props, children) =>
-    hasNamespace(element) &&
+    typeof element == "string" && hasNamespace(element) &&
     (([namespace, element]) => (
       element = bindElementNS(URI[namespace], element, props),
         handleChildren(element, children),
         element
     ))(element.split(":"));
 
+// TODO:refactor(rename to .ifInstance): [Element, DocumentFragment, Document].some(ctor => element instanceof ctor)
 export const ifElement = (handleChildren) =>
   (element, props, children) =>
     element instanceof Element &&
-    (() => (bind(element, props),
+    (() => (bind(element, props.filter(([name]) => !name.startsWith("$:"))),
       handleChildren(element, children, getBuiltinsDirectives(props, element)),
       element))();
 
+// TODO:refactor(rename to .ifConstructor which works on both DocumentFragment and Document): same behaviour as create.ifHasNamespace which *always* do .append operation
 export const ifDocumentFragment = (handleChildren) =>
   (element, props, children) =>
     element === DocumentFragment &&
