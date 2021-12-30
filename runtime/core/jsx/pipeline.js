@@ -3,8 +3,8 @@ export default (mode, ...jsxFactories) =>
   (element, props, ...args) => {
     const runtime = {}, call = {}, after = [];
     if (mode) {
-      var { children, ...props } = props;
-      children = children[Symbol.iterator] ? children : [children];
+      var { children = [], ...props } = props;
+      children = Array.isArray(children) ? children : [children];
     } else children = args;
 
     args = [Object.entries(props ?? {}), children, runtime, args];
