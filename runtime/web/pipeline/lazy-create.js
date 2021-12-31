@@ -42,6 +42,7 @@ export const createOnDocumentFragment = create.ifDocumentFragment(
 );
 
 import { only } from "../../core/jsx/pipeline.js";
+import callFunctionComponent from "../../core/pipeline/function.js";
 export default [
   only(
     (element) => typeof element == "string",
@@ -50,6 +51,7 @@ export default [
   ),
   createOnDocumentFragment,
   createOnElement,
+  callFunctionComponent,
 ];
 
 /*
