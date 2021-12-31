@@ -1,7 +1,7 @@
 import { combine, merge } from "./utils/config.js";
 import { importResolve, importTransform } from "./utils/hooks.js";
 
-const jsconfig = { ext: ".js", skip: true },
+const jsconfig = { ext: ".mjs", skip: true },
   jsxconfig = {
     ext: ".jsx",
     jsc: {
@@ -55,7 +55,7 @@ window.esmsInitOptions = {
       }`;
       return code;
     },
-    rules: [/* jsconfig, */ jsxconfig, tsconfig, tsxconfig],
+    rules: [jsconfig, jsxconfig, tsconfig, tsxconfig],
   }),
 };
 

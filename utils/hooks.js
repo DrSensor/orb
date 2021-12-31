@@ -14,7 +14,10 @@ export const importResolve = (cdn, get = once) =>
 export const importTransform = (...configs) =>
   !configs.length ? undefined : async (url, options) => {
     const { origin, pathname, searchParams } = new URL(url),
-      response = await fetch(origin + pathname, options);
+      response = await fetch(
+        origin + pathname + (/\.\w+$/.test(pathname) ? "" : ".js"),
+        options,
+      );
 
     if (!response.ok) return response;
     let type, filename, params;
