@@ -1,17 +1,22 @@
 import { bindElementNS, hasNamespace } from "./_internal.js";
 import * as create from "./create-element.js";
 
-const attach = (element, attach, children, namespaceURI) =>
+const attach = (
+  element,
+  attach,
+  children,
+  namespaceURI = element.namespaceURI,
+) => (
   element[attach](
     ...children.map((create) =>
-      typeof create == "function"
-        ? create(namespaceURI ?? element.namespaceURI)
-        : create
+      typeof create == "function" ? create(namespaceURI) : create
     ),
-  ); //👆 batched but doesn't work with decorator
-// children.forEach((create) =>
-//   element[attach](create?.(namespaceURI ?? element.namespaceURI) ?? create)
-// );//👆 works with decorator but not batched
+  ), //👆 batched but doesn't work with decorator
+    // children.forEach((create) =>
+    //   element[attach](typeof create == "function" ? create(namespaceURI) : create)
+    // ), //👆 works with decorator but not batched
+    children.forEach(({ flush }) => flush?.())
+);
 
 const append = (element, children) => attach(element, "append", children);
 

@@ -13,12 +13,15 @@ export const build = (element, props, children) =>
     }>` + children.map(at(1)).join("") + `</${element}>`,
 
     [effectProps].concat(children.map(at(2))), // only pass reactive props and event handler
+
+    [children.flatMap(({ flush }) => flush ? [flush] : [])]
+      .concat(children.map(at(3))),
   ])(props.filter(([, value]) => typeof value == "function")); //👈 orb passed to JSX props is always a function (to support "cascading transformed orb" syntax)
 
 const attach = (element, children) => {
   for (const child of children) {
     if (Array.isArray(child)) {
-      let [prop, template, orbs] = child;
+      let [prop, template, orbs, toilet] = child;
       element.innerHTML = template;
       for (
         let [i, child] of element.querySelectorAll(
@@ -31,7 +34,9 @@ const attach = (element, children) => {
         i.effect?.add(effectAttr(child, prop)) ?? (element[prop] = i); // bind orb or attach event handler
         child.removeAttribute("_");
       }
+      for (const flush of toilet) flush();
     } else element.append(child);
+    child.flush?.();
   }
 };
 

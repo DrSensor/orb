@@ -25,6 +25,7 @@ const attach = (element, children) => {
       );
     }
     element.append(child);
+    child.flush?.();
   }
 };
 
