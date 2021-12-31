@@ -18,7 +18,7 @@ const append = (element, children) => attach(element, "append", children);
 export { HTML, SVG } from "./create-element.js";
 
 export const build = (element, props, children) =>
-  typeof element == "string" && !hasNamespace(element) &&
+  !hasNamespace(element) &&
   ((namespaceURI) => (
     element = bindElementNS(namespaceURI, element, props),
       append(element, children),
@@ -41,20 +41,39 @@ export const createOnDocumentFragment = create.ifDocumentFragment(
     ),
 );
 
+import { only } from "../../core/jsx/pipeline.js";
+export default [
+  only(
+    (element) => typeof element == "string",
+    build,
+    createOnNamespace,
+  ),
+  createOnDocumentFragment,
+  createOnElement,
+];
+
 /*
 // example
-<DocumentFragment append>
-  <button>{count}</button>
-</DocumentFragment>
+<document.body $:append>
+  {message}: <button>{count}</button>
+</document.body>
 
 <!--[description]
-element = instanceof DocumentFragment
+element = instanceof HTMLBodyElement
 directives = ["append"]
-children = instanceof[HTMLButtonElement]
+children = vnodeof[HTMLButtonElement]
 -->
 
 // same as
-new DocumentFragment().append(
-  (button = document.createElement("button"), button.append(child_1 = new Text(count)), count.effect.add(value => child_1.nodeValue = value), button)
+let $0, $1;
+document.body.append(
+  ($0 = new Text(message),
+   message.effect.add(value => $0.nodeValue = value),
+  $0),
+  ": ",
+  (button = document.createElement("button"),
+   button.append($1 = new Text(count)),
+   count.effect.add(value => $1.nodeValue = value),
+  button)
 )
 */

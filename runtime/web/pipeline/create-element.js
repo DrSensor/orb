@@ -6,7 +6,7 @@ const URI = { html: HTML, svg: SVG };
 
 export const ifHasNamespace = (handleChildren) =>
   (element, props, children) =>
-    typeof element == "string" && hasNamespace(element) &&
+    hasNamespace(element) &&
     (([namespace, element]) => (
       element = bindElementNS(URI[namespace], element, props),
         handleChildren(element, children),
