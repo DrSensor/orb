@@ -12,6 +12,7 @@ test.traceIgnores = [import.meta.url, "https://cdn.esm.sh"];
 // TODO: replace with `new Worker(URL.createObjectURL(...),{type:"module"})` when Firefox support it
 await Promise.all([
   import("./test/syntax.js"),
+  import("./test/jsx-runtime.js"),
 ]);
 
 test.run();

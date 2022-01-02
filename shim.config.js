@@ -1,4 +1,4 @@
-import { combine, merge } from "./utils/config.js";
+import { clone, combine, merge } from "./utils/config.js";
 import { importResolve, importTransform } from "./utils/hooks.js";
 
 const jsconfig = { ext: ".mjs", skip: true },
@@ -47,8 +47,8 @@ window.esmsInitOptions = {
   fetch: importTransform({ // NOTE: mostly non .js extension like .jsx .ts .tsx not served with header Content-Type: text/javascript
     // subtype: "javascript",
     basename: /\.(jsx|tsx?)$/, // optional fallback if subtype fail
-    transform: (source, config, params, url) => {
-      if (params.jsx) merge(config.jsc.transform.react, params.jsx);
+    transform: (source, config, { jsx }, url) => {
+      if (jsx) merge((config = clone(config)).jsc.transform.react, jsx);
       let { code, map } = swc.transformSync(source, config);
       code += `\n//# sourceMappingURL=data:,${
         map.replace(/<anon>/, url).replace(/\s/g, "") // WARNING: this solution might be specifc to swc.rs
