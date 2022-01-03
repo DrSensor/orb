@@ -2,7 +2,7 @@ import expect from "unexpected";
 
 import "orb/runtime/core/syntax.js";
 
-describe("runtime syntax", () => {
+describe("runtime Syntax", () => {
   describe("core", () => {
     it("reactive number", () => {
       const [data] = 0;

@@ -13,6 +13,7 @@ test.traceIgnores = [import.meta.url, "https://cdn.esm.sh"];
 await Promise.all([
   import("./test/syntax.js"),
   import("./test/jsx-runtime.js"),
+  import("./test/reactive-value.js"),
 ]);
 
 test.run();
