@@ -3,10 +3,10 @@ export const reset = (orb) => orb.set(orb.initial);
 export const isOpaque = (orb) => {
   const { let: value, set, [Symbol.toPrimitive]: get } = Object
     .getOwnPropertyDescriptors(orb);
-  return value.set === set.value && value.get === get.value;
+  return value?.set === set?.value && value?.get === get?.value;
 };
 
-export const isOrb = (orb) =>
+export const isReactive = (orb) =>
   isOpaque(orb) &&
   ["object", "function"].some((type) => type == typeof orb.effect);
 
