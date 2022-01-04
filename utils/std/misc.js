@@ -17,3 +17,5 @@ export const take = (orb) => {
   orb.effect?.delete(orb$.set);
   return orb$;
 };
+
+export const get = (orb) => orb[Symbol.toPrimitive]();
