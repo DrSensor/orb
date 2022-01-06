@@ -1,11 +1,11 @@
 export const TOPLEVEL = 2, AUTOMATIC = 1, CLASSIC = 0;
 export default (mode, ...jsxFactories) =>
   (element, props, ...args) => {
-    const runtime = (hook, args, ...extras) => {
-      runtime.arguments = args.concat(extras);
+    const runtime = (hook, args = [], ...extras) => {
+      runtime.args = args.concat(extras);
       const result = hook.apply(runtime, args),
         give = (result) => (
-          runtime.arguments = null, delete runtime.arguments, result
+          runtime.args = null, delete runtime.args, result
         );
       return result instanceof Promise ? result.then(give) : give(result);
     };
