@@ -13,25 +13,21 @@ export const ifHasNamespace = (handleChildren) =>
         element
     ))(element.split(":"));
 
-// TODO:refactor(rename to .ifInstance): [Element, DocumentFragment, Document].some(ctor => element instanceof ctor)
-export const ifElement = (handleChildren) =>
+// condition: [Element, DocumentFragment, Document].some(it => element instanceof it) <|or|> (t => t(Element) || t(DocumentFragment) || t(Document))(Type => element instanceof Type)
+export const ifInstance = (handleChildren) =>
   (element, props, children) =>
-    element instanceof Element &&
+    element instanceof Node &&
     (() => (bind(element, props.filter(([name]) => !name.startsWith("$:"))),
       handleChildren(element, children, getBuiltinsDirectives(props, element)),
       element))();
 
-// TODO:refactor(rename to .ifConstructor which works on both DocumentFragment and Document): same behaviour as create.ifHasNamespace which *always* do .append operation
-export const ifDocumentFragment = (handleChildren) =>
+// same behaviour as create.ifHasNamespace which *always* do .append operation but still require namespace props (e.g <DocumentFragment html>)
+// condition: [DocumentFragment, Document].some(it => element instanceof it) <|or|> (t => t(DocumentFragment) || t(Document))(Type => element instanceof Type) <|or|> element === DocumentFragment || element === Document
+export const ifConstructor = (handleChildren) =>
   (element, props, children) =>
-    element === DocumentFragment &&
+    element.prototype instanceof Node &&
     (() => (element = new element(),
-      handleChildren(
-        element,
-        children,
-        getBuiltinsDirectives(props, element),
-        props.flatMap(([name]) => name.startsWith("$:") ? [] : [URI[name]]),
-      ),
+      handleChildren(element, children, URI[props[0]?.[0]]),
       element))();
 
 // NOTE: attaching children of Element instance should be implmented by handleChildren, not in this file

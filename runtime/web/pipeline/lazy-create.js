@@ -18,7 +18,8 @@ const attach = (
     children.forEach(({ flush }) => flush?.())
 );
 
-const append = (element, children) => attach(element, "append", children);
+const append = (element, children, namespaceURI = element.namespaceURI) =>
+  attach(element, "append", children, namespaceURI);
 
 export { HTML, SVG } from "./create-element.js";
 
@@ -32,18 +33,14 @@ export const build = (element, props, children) =>
 
 export const createOnNamespace = create.ifHasNamespace(append);
 
-export const createOnElement = create.ifElement(
+export const createOnInstance = create.ifInstance(
   (element, children, directives) =>
     directives.forEach((directive) => attach(element, directive, children)),
 );
 
-export const createOnDocumentFragment = create.ifDocumentFragment(
-  (fragment, children, directives, namespaceURIs) =>
-    namespaceURIs.forEach((namespaceURI) =>
-      directives.forEach((directive) =>
-        attach(fragment, directive, children, namespaceURI)
-      )
-    ),
+export const createOnConstructor = create.ifConstructor(
+  (fragment, children, namespaceURI) =>
+    append(fragment, children, namespaceURI),
 );
 
 import { only } from "../../core/jsx/pipeline.js";
@@ -54,8 +51,8 @@ export default [
     build,
     createOnNamespace,
   ),
-  createOnDocumentFragment,
-  createOnElement,
+  createOnConstructor,
+  createOnInstance,
   callFunctionComponent,
 ];
 
