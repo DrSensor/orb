@@ -1,7 +1,10 @@
 import "./syntax.js";
-import pipeline, { AUTOMATIC, TOPLEVEL } from "../core/jsx/pipeline.js";
-import defaultLazyCreatePipeline from "./pipeline/lazy-create.js";
+import pipeline, { AUTOMATIC, select, TOPLEVEL } from "../core/jsx/pipeline.js";
+import defaultCorePipeline from "../core/pipeline/default.js";
+import lazyCreatePipeline from "./pipeline/lazy-create.js";
 
-export const jsxs = pipeline(TOPLEVEL, defaultLazyCreatePipeline);
+const defaultPipeline = select(lazyCreatePipeline, defaultCorePipeline);
 
-export const jsx = pipeline(AUTOMATIC, defaultLazyCreatePipeline);
+export const jsxs = pipeline(TOPLEVEL, defaultPipeline);
+
+export const jsx = pipeline(AUTOMATIC, defaultPipeline);

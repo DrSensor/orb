@@ -41,10 +41,8 @@ export const createOnConstructor = create.ifConstructor(
     append(fragment, children, namespaceURI),
 );
 
-import injectEffect, { flush } from "../../core/pipeline/runtime/effect.js";
-import hook from "../../core/pipeline/runtime/hook.js";
-import callFunctionComponent from "../../core/pipeline/function.js";
-import { chain, selectAfter, selectIf } from "../../core/jsx/pipeline.js";
+import { flush } from "../../core/pipeline/runtime/effect.js";
+import { selectAfter, selectIf } from "../../core/jsx/pipeline.js";
 export default selectAfter(
   (element, props, ...$) => [element, Object.entries(props ?? {})].concat($),
   selectIf(
@@ -54,7 +52,6 @@ export default selectAfter(
   ),
   createOnConstructor,
   createOnInstance,
-  chain(selectAfter(hook, callFunctionComponent), injectEffect),
 );
 
 /*
