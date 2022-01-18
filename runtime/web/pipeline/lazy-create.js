@@ -19,7 +19,7 @@ const attach = (
 const append = (element, children, namespaceURI = element.namespaceURI) =>
   attach(element, "append", children, namespaceURI);
 
-export { HTML, SVG } from "./create-element.js";
+export { HTML, SVG } from "./_internal.js";
 
 export const build = (element, props, children) =>
   !hasNamespace(element) &&
