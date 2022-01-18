@@ -43,10 +43,11 @@ export const createOnConstructor = create.ifConstructor(
     append(fragment, children, namespaceURI),
 );
 
-import { only } from "../../core/jsx/pipeline.js";
 import callFunctionComponent from "../../core/pipeline/function.js";
-export default [
-  only(
+import { selectAfter, selectIf } from "../../core/jsx/pipeline.js";
+export default selectAfter(
+  (element, props, ...$) => [element, Object.entries(props ?? {})].concat($),
+  selectIf(
     (element) => typeof element == "string",
     build,
     createOnNamespace,
@@ -54,7 +55,7 @@ export default [
   createOnConstructor,
   createOnInstance,
   callFunctionComponent,
-];
+);
 
 /*
 // example
