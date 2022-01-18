@@ -1,8 +1,5 @@
-body,
-#mocha-stats,
 #mocha-stats em {
-    background: #1c1b22;
-    color     : whitesmoke;
+    color: whitesmoke;
 }
 
 #mocha pre.error {
@@ -22,7 +19,7 @@ body,
     --shadow: wheat;
 }
 
-#mocha-stats li {
+#mocha-stats * {
     color      : white;
     text-shadow: -1px -.5px var(--shadow)
 }
@@ -31,8 +28,23 @@ body,
     filter: invert(1);
 }
 
-#mocha li.test>* {
+#mocha .test.pending::before {
+    color: yellow;
+}
+
+#mocha .test>* {
     font-size: 1rem;
+}
+
+#mocha .test>pre>code,
+#mocha .test>.html-error {
+    cursor    : text;
+    color     : var(--code-color);
+    max-height: 500px;
+}
+
+#mocha code .comment {
+    color: var(--code-comment-color);
 }
 
 #mocha .test.fail h2 {
@@ -40,15 +52,16 @@ body,
 }
 
 #mocha .test.fail pre {
-    color: rgb(255, 81, 0);
+    color: chocolate;
+    float: none;
 }
 
 #mocha .test a.replay {
-    color      : white;
-    font-size  : 2em;
-    line-height: .9em;
-    width      : 20px;
-    height     : 20px;
-    background : #6b6b6b;
-    opacity    : .7;
+    color     : white;
+    font-size : 1.5em;
+    background: none;
+}
+
+#mocha .test a.replay:hover {
+    text-shadow: -10px 0;
 }
