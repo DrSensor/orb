@@ -1,7 +1,10 @@
 {
   "imports": {
-    "mocha": "https://esm.sh/mocha?bundle&pin=v58",
+    "mocha": "https://esm.sh/mocha/mocha-es2018.js",
+    "sinon": "https://esm.sh/sinon",
     "unexpected": "https://esm.sh/unexpected",
+    "unexpected-sinon": "https://esm.sh/unexpected-sinon",
+    "unexpected-dom": "https://esm.sh/unexpected-dom?alias=jsdom:empty-module,magicpen-prism:magicpen-prism/magicPenPrism.min.js",
     "orb/": "/orb/"
   }
 }
