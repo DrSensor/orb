@@ -43,6 +43,7 @@ export const createOnConstructor = create.ifConstructor(
     append(fragment, children, namespaceURI),
 );
 
+import hook from "../../core/pipeline/runtime/hook.js";
 import callFunctionComponent from "../../core/pipeline/function.js";
 import { selectAfter, selectIf } from "../../core/jsx/pipeline.js";
 export default selectAfter(
@@ -54,7 +55,7 @@ export default selectAfter(
   ),
   createOnConstructor,
   createOnInstance,
-  callFunctionComponent,
+  selectAfter(hook, callFunctionComponent),
 );
 
 /*
