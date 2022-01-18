@@ -12,4 +12,4 @@ export default (element, runtime, Component) =>
 
 const $flush = Symbol();
 export const flush = (children) =>
-  children.forEach(({ [$flush]: flush }) => flush?.());
+  children.forEach(({ [$flush]: flush } = {}) => flush?.());

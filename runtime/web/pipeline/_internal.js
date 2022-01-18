@@ -1,3 +1,6 @@
+export const filterDefined = (children) =>
+  children.filter((child) => child !== undefined);
+  
 export const hasNamespace = (element) => element.includes(":");
 
 // export const hasNamespaces = (element, ...namespaces) =>
@@ -11,10 +14,12 @@ export const effectAttr = (element, name) =>
 
 export const bind = (element, props) => {
   for (const [name, value] of props) {
-    name.startsWith("on")
-      ? element[name] = value
-      : (value.effect?.add(effectAttr(element, name)),
-        element.setAttribute(name, value));
+    value !== undefined && (
+      name.startsWith("on")
+        ? element[name] = value
+        : (value.effect?.add(effectAttr(element, name)),
+          element.setAttribute(name, value))
+    );
   }
 };
 

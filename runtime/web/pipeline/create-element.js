@@ -1,4 +1,9 @@
-import { bind, bindElementNS, hasNamespace } from "./_internal.js";
+import {
+  bind,
+  bindElementNS,
+  filterDefined,
+  hasNamespace,
+} from "./_internal.js";
 
 const W3C = "http://www.w3.org/";
 export const HTML = `${W3C}1999/xhtml`, SVG = `${W3C}2000/svg`;
@@ -8,8 +13,8 @@ export const ifHasNamespace = (handleChildren) =>
   (element, props, children) =>
     hasNamespace(element) &&
     (([namespace, element]) => (
-      element = bindElementNS(URI[namespace], element, props),
-        handleChildren(element, children),
+      element = bindElementNS(URI[namespace], element ?? namespace, props),
+        handleChildren(element, filterDefined(children)),
         element
     ))(element.split(":"));
 
@@ -18,7 +23,11 @@ export const ifInstance = (handleChildren) =>
   (element, props, children) =>
     element instanceof Node &&
     (() => (bind(element, props.filter(([name]) => !name.startsWith("$:"))),
-      handleChildren(element, children, getBuiltinsDirectives(props, element)),
+      handleChildren(
+        element,
+        filterDefined(children),
+        getBuiltinsDirectives(props, element),
+      ),
       element))();
 
 // same behaviour as create.ifHasNamespace which *always* do .append operation but still require namespace props (e.g <DocumentFragment html>)
@@ -27,7 +36,7 @@ export const ifConstructor = (handleChildren) =>
   (element, props, children) =>
     element.prototype instanceof Node &&
     (() => (element = new element(),
-      handleChildren(element, children, URI[props[0]?.[0]]),
+      handleChildren(element, filterDefined(children), URI[props[0]?.[0]]),
       element))();
 
 // NOTE: attaching children of Element instance should be implmented by handleChildren, not in this file

@@ -7,7 +7,11 @@ const isExtensible = (val) => isFunc(val) || typeof val == "object",
 
 // const $this = Symbol.for("this") // TODO: refactor  to _internal.js as unique Symbol()
 export default (element, props, children, ...$) => (
-  children = element.apply($ = runtime($), [props].concat(children)),
+  children = element.apply(
+    $ = runtime($),
+    [props ?? undefined] // `[{ value } = {}] = [null]` cause TypeError while `[undefined]` not
+      .concat(children), // BUG:👆 on any classic JSX transformer which do `createElement(Component, null)`
+  ),
     props = isExtensible(children)
       ? children
       : { [Symbol.toPrimitive]: () => children },
