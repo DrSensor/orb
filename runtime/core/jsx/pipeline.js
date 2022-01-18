@@ -1,34 +1,88 @@
-export const TOPLEVEL = 2, AUTOMATIC = 1, CLASSIC = 0;
-export default (mode, ...jsxFactories) =>
-  (element, props, ...args) => {
-    const runtime = (hook, args = [], ...extras) => {
-      runtime.args = args.concat(extras);
-      const result = hook.apply(runtime, args),
-        give = (result) => (
-          runtime.args = null, delete runtime.args, result
-        );
-      return result instanceof Promise ? result.then(give) : give(result);
-    };
+// inspired from control flow nodes of BT (Behaviour Tree) in form of Combinator function
+// [Combinator function](https://youtu.be/pAnLQ9jwN-E) & https://wiki.haskell.org/Combinator
+// [Behaviour Tree](https://youtu.be/dB7ZSz890cw) & https://en.wikipedia.org/wiki/Behavior_tree_(artificial_intelligence,_robotics_and_control)
 
+const { isArray } = Array; // TODO: refactor to _internal.js
+
+export const TOPLEVEL = 2, AUTOMATIC = 1, CLASSIC = 0;
+export default (mode, jsxFactory) =>
+  (element, props, ...args) => {
     if (mode) {
       var { children = [], ...props } = props;
-      children = Array.isArray(children) ? children : [children];
+      children = isArray(children) ? children : [children];
     } else children = args;
 
-    args = [element, Object.entries(props ?? {}), children, runtime, args];
-    return new execute(jsxFactories, args);
+    return jsxFactory.apply({}, [element, props, children].concat(args));
   };
 
-export function only(predicate, ...jsxFactories) {
-  const context = this;
-  return (...args) =>
-    predicate(...args) && execute.call(context, jsxFactories, args);
+// equivalent to BT.Selector
+export function select(...jsxFactories) {
+  return selectExec.bind(this, jsxFactories);
 }
 
-function execute(jsxFactories, args) {
+export function selectIf(predicate, ...jsxFactories) {
+  const context = this;
+  return (...args) =>
+    predicate(...args) &&
+    selectExec.apply(context, [jsxFactories].concat(args));
+}
+
+export function selectAfter(transform, ...jsxFactories) {
+  const context = this;
+  return (...args) =>
+    selectExec.apply(context, [jsxFactories].concat(transform(...args)));
+}
+
+function selectExec(jsxFactories, ...args) {
   for (const create of jsxFactories) {
     var result = create.apply(this, args) ?? args[0];
-    if (result) break; // this.prev = result; // WARNING: it still unknown how to automatically free(this.prev)
+    if (result) break;
   }
   return result;
+}
+
+function chainExec(jsxFactories, ...args) {
+  for (const create of jsxFactories) {
+    args = create.apply(this, isArray(args) ? args : [args]) ?? args[0];
+  }
+  return args; // end result
+}
+
+// equivalent to BT.Sequence
+export function chain(...jsxFactories) {
+  return chainExec.bind(this, jsxFactories);
+}
+
+export function chainIf(predicate, ...jsxFactories) {
+  const context = this;
+  return (...args) =>
+    predicate(...args) && chainExec.apply(context, [jsxFactories].concat(args));
+}
+
+// chainAfter(transform,...) is redundant
+
+function chainEachSelectExec(sequence, selector, ...args) {
+  for (const create of selector) {
+    var result = create.apply(
+      this,
+      args = chainExec.apply(this, [sequence].concat(args)),
+    ) ?? args[0];
+    if (result) break;
+  }
+  return result;
+}
+
+export function chainEachSelect(sequence, selector) {
+  return chainEachSelectExec.bind(this, sequence, selector);
+}
+
+export function chainEachSelectIf(predicate, ..._2) {
+  const context = this;
+  return (...args) =>
+    predicate(...args) && chainEachSelectExec.apply(context, _2.concat(args));
+}
+
+export function chainEachSelectAfter(transform, ..._2) {
+  const context = this;
+  return (...args) => selectExec.apply(context, _2.concat(transform(...args)));
 }
