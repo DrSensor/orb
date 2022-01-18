@@ -1,27 +1,16 @@
-const { defineProperty, isExtensible } = Object;
-export default (element, props, children, runtime) =>
-  typeof element == "function" &&
-  ((effects) =>
-    defineProperty(
-      (
-        children = element.apply(
-          defineProperty(runtime, "effect", {
-            set(fn) {
-              (effects ??= new Set()).add(fn);
-            },
-          }),
-          [props].concat(children),
-        ),
-          isExtensible(children)
-            ? children
-            : { [Symbol.toPrimitive]: () => children }
-      ),
-      "flush",
-      {
-        value() {
-          effects?.forEach((effect) => effect.call(runtime, element));
-          // TODO:on dispose:require ref to be implemented: for (const effect of afterEffects) effect.call(runtime, element);
-          effects = null;
-        },
-      },
-    ))();
+// TODO: refactor to _internal.js
+const isExtensible = (val) => isFunc(val) || typeof val == "object",
+  isFunc = (val) => typeof val == "function",
+  // RUNTIME = __DEV__ ? 8 : JSX_AUTOMATIC_RUNTIME ? 6 : 4,
+  // runtime = ($) => typeof ($ = $[RUNTIME]) == "function" ? $ : {};
+  runtime = ($) => typeof ($ = $.at(-1)) == "function" ? $ : {};
+
+// const $this = Symbol.for("this") // TODO: refactor  to _internal.js as unique Symbol()
+export default (element, props, children, ...$) =>
+  typeof element == "function" && (
+    children = element.apply($ = runtime($), [props].concat(children)),
+      props = isExtensible(children)
+        ? children
+        : { [Symbol.toPrimitive]: () => children },
+      isFunc($) ? [props, $, element] : props
+  );

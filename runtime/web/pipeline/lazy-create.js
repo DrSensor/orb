@@ -6,17 +6,15 @@ const attach = (
   attach,
   children,
   namespaceURI = element.namespaceURI,
-) => (
-  element[attach](
-    ...children.map((create) =>
-      typeof create == "function" ? create(namespaceURI) : create
-    ),
-  ), //👆 batched but doesn't work with decorator
-    // children.forEach((create) =>
-    //   element[attach](typeof create == "function" ? create(namespaceURI) : create)
-    // ), //👆 works with decorator but not batched
-    children.forEach(({ flush }) => flush?.())
-);
+) => (element[attach](
+  ...children.map((create) =>
+    typeof create == "function" ? create(namespaceURI) : create
+  ),
+), //👆 batched but doesn't work with decorator
+  // children.forEach((create) =>
+  //   element[attach](typeof create == "function" ? create(namespaceURI) : create)
+  // ), //👆 works with decorator but not batched
+  flush(children));
 
 const append = (element, children, namespaceURI = element.namespaceURI) =>
   attach(element, "append", children, namespaceURI);
@@ -43,9 +41,10 @@ export const createOnConstructor = create.ifConstructor(
     append(fragment, children, namespaceURI),
 );
 
+import injectEffect, { flush } from "../../core/pipeline/runtime/effect.js";
 import hook from "../../core/pipeline/runtime/hook.js";
 import callFunctionComponent from "../../core/pipeline/function.js";
-import { selectAfter, selectIf } from "../../core/jsx/pipeline.js";
+import { chain, selectAfter, selectIf } from "../../core/jsx/pipeline.js";
 export default selectAfter(
   (element, props, ...$) => [element, Object.entries(props ?? {})].concat($),
   selectIf(
@@ -55,7 +54,7 @@ export default selectAfter(
   ),
   createOnConstructor,
   createOnInstance,
-  selectAfter(hook, callFunctionComponent),
+  chain(selectAfter(hook, callFunctionComponent), injectEffect),
 );
 
 /*
