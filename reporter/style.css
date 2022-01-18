@@ -51,6 +51,20 @@
     font-weight: revert;
 }
 
+#mocha .test.pass>h2,
+#mocha .test.fail>h2 {
+    cursor: url(./icons/file-code.svg) 18 12, context-menu;
+}
+
+#mocha .test.pass:has(pre[style*="display: block"])>h2,
+#mocha .test.fail:has(pre[style*="display: block"])>h2 {
+    cursor: url(./icons/fold-up.svg) 0 12, n-resize;
+}
+
+#mocha .test.pass.pending>h2 {
+    cursor: revert;
+}
+
 #mocha .test.fail pre {
     color: chocolate;
     float: none;
