@@ -1,41 +1,51 @@
 import Orb, { override } from "../data/reactive/opaque.js";
+const O = Object, $orbs = Symbol();
 
-export let id = 0;
 /** **Declare** ECS Component */
 export default (SoA, size = 255) => {
-  Component.id = ++id, SoA = entries(SoA);
-  let struct = {}, mapSoA = (handler) => fromEntries(SoA.map(handler));
+  let struct, mapSoA = (to) => O.fromEntries(O.entries(SoA).map(to));
+  Component[$orbs] = new Map(), Component.entities = new Uint8Array(size); // sparse
   function Component($) {
     return $ == null
-      ? { // reusable iterable array of struct
-        *[Symbol.iterator]() {
-          for (let $ = 0; $ < size; $++) {
-            yield mapSoA(([key, Type]) => [
-              key,
-              (struct[key] ??= new Type(size))[$],
-            ]);
-          }
-        },
-      }
-      : mapSoA(([key, Type]) => [
-        key,
-        new.target
-          ? new Type($) // where $ is array size, return a brand new struct of array
-          : ((array) =>
-            defineProperty(Orb(array[$]), $data, { // where $ is entity id, return struct of orb at current entity id
-              get: () => array[$],
-              set(value) {
-                array[$] = value;
-              },
-              configurable: false,
-            }))(struct[key] ??= new Type(size)),
-      ]);
+      ? new.target
+        ? { // return current array of struct for all entity in form of reusable iterable
+          *[Symbol.iterator]() {
+            for (let eid = 0; eid < size; eid++) {
+              yield mapSoA(([key, Type]) => [
+                key,
+                (struct[key] ??= new Type(size))[eid],
+              ]);
+            }
+          },
+        }
+        : struct ??= mapSoA(([key, Type]) => [key, new Type(size)]) // return current struct of array for all entity
+      : (struct ??= {},
+        mapSoA(([key, Type]) => [
+          key,
+          ((array) => {
+            if (array == struct[key]) { // where $ is entity id, return struct of orb at current entity id
+              const orb = Orb(array[$]);
+              Component[$orbs].set($, orb);
+              return override(orb, {
+                get: () => array[$],
+                set: (value) => array[$] = value,
+                configurable: false,
+              });
+            } else { // where $ is array size, return struct of array, override the current one with specific size while retaining the values
+              if (struct[key]?.length < $) array.set(struct[key]); // grow array
+              else if (struct[key]?.length); // TODO: shrink array
+              return struct[key] = array;
+            }
+          })(new.target ? new Type($) : struct[key] ??= new Type(size)),
+        ]));
   }
   return Component;
 };
 
+export { $orbs as $orb };
 // alias
-export const i8 = Int8Array,
+export const any = Array,
+  i8 = Int8Array,
   u8 = Uint8Array,
   i16 = Int16Array,
   u16 = Uint16Array,
