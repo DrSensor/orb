@@ -47,6 +47,7 @@ export default function Reactive(
     try { // INFO: it's impossible to have `f = tryAwait(f)` without invoking `await` in sequential mode
       let finalize = onchange?.call(context, value), status, effect;
       const isError = () => errors && status === "rejected", after = [];
+      if (isAsync(finalize)) finalize = await finalize;
       for ([status, effect] of effectResolver(effects)) {
         isError() ? queueError(effect) : isFunction(
           isAsync(effect = effect.call(context, value))
@@ -61,8 +62,8 @@ export default function Reactive(
           ? queueError(effect)
           : isAsync(effect = effect(value)) && await effect;
       }
-      if (isFunction(isAsync(finalize) ? await finalize : finalize)) {
-        await finalize(value);
+      if (isFunction(finalize)) {
+        if (isAsync(finalize = finalize(value))) await finalize;
       }
     } catch (error) {
       throwAll(error);
