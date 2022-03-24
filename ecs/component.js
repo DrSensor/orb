@@ -1,5 +1,4 @@
-import Orb, { override } from "../data/primitive.js";
-const { fromEntries, entries, defineProperty } = Object;
+import Orb, { override } from "../data/reactive/opaque.js";
 
 export let id = 0;
 /** **Declare** ECS Component */

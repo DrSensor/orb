@@ -4,12 +4,12 @@ export const override = (orb, propertyDescriptor) =>
   defineProperties(orb, { [$data]: propertyDescriptor });
 
 export const INHERIT = 1;
-export const enableCascading = (orb, handler, withInherit) =>
-  defineProperties(orb, {
+export const enableCascading = (obj, handler, withInherit) =>
+  defineProperties(obj, {
     [iterator]: {
       *value() {
         const value = handler(this);
-        if (withInherit) defineProperties(value, { inherit: { value: orb } });
+        if (withInherit) defineProperties(value, { inherit: { value: obj } });
         yield value;
       },
     },
