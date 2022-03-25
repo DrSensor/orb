@@ -21,7 +21,7 @@ export default (self) => {
   });
 };
 
-export * from "./utils.js";
+export { default as override } from "./utils/override.js";
 
 export const setInitialValue = (orb, value) =>
   defineProperties(orb, { initial: { value } });

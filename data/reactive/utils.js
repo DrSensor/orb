@@ -1,9 +1,9 @@
-import { $data, defineProperties, iterator } from "./_internal.js";
+import { defineProperties, iterator } from "./_internal.js";
 
-export const override = (orb, propertyDescriptor) =>
-  defineProperties(orb, { [$data]: propertyDescriptor });
-
+/** @deprecated */
 export const INHERIT = 1;
+
+/** @deprecated */
 export const enableCascading = (obj, handler, withInherit) =>
   defineProperties(obj, {
     [iterator]: {
