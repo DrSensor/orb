@@ -1,5 +1,15 @@
+export { default as match } from "./helper/match.js";
+import { effectMatchTable } from "./_internal.js";
+
 const O = Object, RefSet = Set; // TODO:👈👇 refactor to _internal.js
-const { assign, getOwnPropertyNames, defineProperty, hasOwn } = O,
+const {
+    assign,
+    getOwnPropertyNames,
+    defineProperties,
+    defineProperty,
+    hasOwn,
+  } = O,
+  isObject = ($) => typeof $ == "object",
   reduce = (array, callback, initial) => array.reduce(callback, initial),
   filter = (array, callback) => array.filter(callback),
   forEach = (array, callback) => array.forEach(callback),
@@ -41,7 +51,7 @@ const trigger = ([fn, n], addEffect, removeEffect) => {
     [ln, un, clr] = length(fn) < 3 ? [link(fn), unlink(fn)] : register(fn);
 };
 
-const default$ = (...n) => (
+const default_ = (...n) => (
   hasOwn(n[0], effect)
     ? {
       ...reduce(ops, ($, op) => (
@@ -66,18 +76,28 @@ const default$ = (...n) => (
           (rvar) => rvar[effect] = null,
         );
       },
+
+      get switch() {
+        return (pattern) => {};
+      },
+      set switch(pattern) {},
     }
-    : (n = length(n = n[0]) < 3
+    : isObject(n[0]) // TODO: execute effect based on pattern match(...)
+    ? (() => {})()
+    : (n = length(n = n[0]) < 3 // is function with specific arguments length (remember that function has .length property)
       ? () => n(link(n), unlink(n))
       : () => n(...register(n)))()
 );
 
-default$[toPrimitive] = () => effect;
-defineProperty(default$, "let", {
-  set: (fn) =>
-    (fn = length(fn) < 3
-      ? () => fn(link(fn), unlink(fn))
-      : () => fn(...register(fn)))(),
+default_[toPrimitive] = () => effect;
+defineProperties(default_, {
+  let: {
+    set: (fn) =>
+      (fn = length(fn) < 3
+        ? () => fn(link(fn), unlink(fn))
+        : () => fn(...register(fn)))(),
+  },
+  switch: { set: (pattern) => {} },
 });
 
-export { default$ as default, effect };
+export { default_ as default, effect };
