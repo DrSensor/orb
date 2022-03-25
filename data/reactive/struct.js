@@ -28,3 +28,5 @@ export default function (struct, { depth = 1, mode = sequential, ...p } = {}) {
     final = {};
   return transform(struct), final;
 }
+
+// TODO: export reactiveSetter = () => {} as struct mode
