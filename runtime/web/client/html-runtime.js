@@ -1,4 +1,4 @@
-#!bundle $0 $(dirname $0)/html-progressive.js
+#!bundle $0 $(dirname $0)/html-runtime.js
 import "../core/syntax.js";
 import { effect } from "./addons.js";
 
