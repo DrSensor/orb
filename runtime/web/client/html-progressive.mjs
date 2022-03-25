@@ -1,4 +1,5 @@
-import "../core.js";
+#!bundle $0 $(dirname $0)/html-progressive.js
+import "../core/syntax.js";
 import { effect } from "./addons.js";
 
 Object.defineProperty(Element.prototype, "binds", {
