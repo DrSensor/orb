@@ -1,11 +1,11 @@
 const O = Object, A = Array,
-  { seal, defineProperties } = O,
+  { is, seal, defineProperties } = O,
   push = ($, value) => $.push(value), pop = ($) => $.pop($),
   shift = ($) => $.shift(), unshift = ($, value) => $.unshift(value),
   microtask = queueMicrotask;//, macrotask = setTimeout;
 
 export default (buffer, label) => {
-  let isSealed = !!buffer, isFastSend = buffer > 0, index = 0,
+  let isSealed = !!buffer, isFastSend = !is(buffer, -0), index = 0,
     set = (value) => isSealed ? buffer[index++] = value
       : (isFastSend ? push : unshift)(buffer, value);
 
