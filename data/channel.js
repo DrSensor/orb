@@ -6,20 +6,19 @@ const O = Object, A = Array, M = Math, S = Symbol,
   push = ($, value) => $.push(value), pop = ($) => $.pop($), shift = ($) => $.shift(),
   length = "length";//, macrotask = setTimeout;
 
-export default (buffer, label) => {
-  const isSealed = isNonZero(buffer), isFIFO = !isNegative(buffer),
-    occupied = () => isSealed ? index : buffer[length],
-    set = (value) => isSealed ? buffer[index++] = value : push(buffer, value);
+export default (size, label) => {
+  const isSealed = isNonZero(size), isFIFO = !isNegative(size),
+    buffer = isSealed ? seal([...A(abs(size))]) : [],
+    occupied = () => isSealed ? size : buffer[length],
+    set = (value) => isSealed ? buffer[size++] = value : push(buffer, value);
 
-  buffer = isSealed ? seal([...A(abs(buffer))]) : []; // WARNING: error early on send instead error on recv since it's sealed
-  let index = 0;
-
+  size = 0;
   return defineProperties({
     async *[asyncIterator]() { while (occupied()) yield await this; },
     async then(resolve) {
       while (!occupied()) await (isFunction(resolve) || sleep(resolve)); // block until channel receive value via `set`
       return (isFunction(resolve) ? resolve : identity)(
-        isSealed ? buffer[isFIFO ? --index : buffer[length] - index--] : (isFIFO ? shift : pop)()
+        isSealed ? buffer[isFIFO ? --size : buffer[length] - size--] : (isFIFO ? shift : pop)()
       );
     }, set
   }, { let: { set }, [length]: { get: occupied } });
