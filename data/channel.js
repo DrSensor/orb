@@ -6,17 +6,20 @@ const O = Object, A = Array, M = Math,
   length = "length", microtask = queueMicrotask;//, macrotask = setTimeout;
 
 export default (buffer, label) => {
-  let isSealed = isNonZero(buffer), index = isSealed - 1,
-    isFIFO = !isNegative(buffer),
-    set = (value) => isSealed ?
-      buffer[index++] = value : push(buffer, value);
+  const isSealed = isNonZero(buffer), isFIFO = !isNegative(buffer),
+    occupied = () => isSealed ? index : buffer[length],
+    set = (value) => isSealed ? buffer[index++] = value : push(buffer, value);
 
   buffer = isSealed ? seal([...A(abs(buffer))]) : []; // WARNING: error early on send instead error on recv since it's sealed
+  let index = 0;
 
   return defineProperties({
-    then: (resolve) => microtask(() => {
-      while (!index || !buffer[length]); // block until channel receive value via `set`
-      resolve(isSealed ? buffer[isFIFO ? --index : buffer[length] - index--] : (isFIFO ? shift : pop)());
-    }), set
-  }, { let: { set } });
+    async *[Symbol.asyncIterator]() { while (occupied()) yield await this; },
+    then(resolve) {
+      microtask(() => {
+        while (!occupied()); // block until channel receive value via `set`
+        resolve(isSealed ? buffer[isFIFO ? --index : buffer[length] - index--] : (isFIFO ? shift : pop)());
+      });
+    }, set
+  }, { let: { set }, [length]: { get: occupied } });
 };
