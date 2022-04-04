@@ -1,4 +1,4 @@
-import Orb, { override } from "../reactive/opaque.js";
+import Orb, { override } from "../overridable.js";
 const O = Object, $orbs = Symbol();
 
 /** **Declare** ECS Component */

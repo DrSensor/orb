@@ -1,4 +1,4 @@
-import Orb, { override } from "../../../data/reactive/opaque.js";
+import Orb, { override } from "../../../data/overridable.js";
 import { enableCascading } from "../../../data/reactive/utils.js";
 
 /** @comptime `const [$ident$] = Element` -> `let $ident$ = (value) => $ident$ = value` */
