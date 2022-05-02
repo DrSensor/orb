@@ -23,5 +23,5 @@
   "placeOpenBraceOnNewLineForFunctions": false,
   "placeOpenBraceOnNewLineForControlBlocks": false,
   "insertSpaceBeforeTypeAnnotation": true,
-  "semicolons": "insert"
+  "semicolons": "remove"
 }

@@ -1,33 +1,34 @@
-import {
-  $data,
-  defineProperties,
-  isFunction,
-  isObject,
-  toPrimitive,
-} from "./_internal.js";
+import * as U from "../_internal/utils.js"
+import * as K from "../_internal/keywords.js"
+import * as S from "../_internal/symbols.js"
 
-export default (self) => {
-  const isFn = isFunction(self),
-    orb = isFn || isObject(self) ? self : {},
-    get = () => orb[$data],
-    set = (value) => orb[$data] = value;
+export default (v
+  , get = _ => v
+  , set = c => v = c
+) => U.defineProperty({ [S.toPrimitive]: get, set }      // WARNING: if cause bottleneck in ECS data preparation,
+  , K.LET, { get, set, [K.CONF]: true, [K.ENUM]: true }) // replace Object.defineProperty with { get let(), set let(v) }
 
-  if (!isFn) orb[$data] = self;
+export { get } from "./_public.js"
+export const
 
-  return defineProperties(orb, {
-    let: { set, get },
-    set: { value: set },
-    [toPrimitive]: { value: get },
-  });
-};
+  override = (o, { set, get, ...d }) => U.defineProperties(o, {
+    ...U.hasOwn(o, K.LET) || set && { let: { ...get && { get }, ...set && { set }, ...d } }
+    , set: set ? { value: set, ...d } : {}
+    , [S.toPrimitive]: get ? { value: get, ...d } : {}
+  }),
 
-export { default as override } from "./utils/override.js";
-
-export const setInitialValue = (orb, value) =>
-  defineProperties(orb, { initial: { value } });
-
-export const enableStoringEffect = (
-  orb,
-  SetLike,
-  set = (effect) => SetLike.add(effect),
-) => defineProperties(orb, { effect: { get: () => SetLike, set } });
+  chain = (o, { get, set, ...d }
+    , { [S.toPrimitive]: $get, set: $set } = o
+  ) => override(o, {
+    ...get && {
+      get: (...a) => get[K.LEN] == 1
+        ? get([$get(...a), ...U.tail(a)])  // value ◀ last chain ◀ … ◀ 1st chain
+        : get(a, $get)
+    },
+    ...set && {
+      set: (...a) => set[K.LEN] == 1
+        ? (set(a), $set(...a))             // value ▶ last chain ▶ … ▶ 1st chain
+        : set(a, $set)
+    },
+    ...d
+  })
