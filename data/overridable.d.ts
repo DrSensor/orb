@@ -14,6 +14,13 @@ export const get: <E extends any[], T>(
   ...extras: E,
 ) => T
 
+export class Cover<G extends () => any, S extends ($: any) => any> {
+  constructor(desc: { get?: G, set?: S })
+  get: G
+  set: S
+  let: ReturnType<G | S>
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 export type Overridable<T, E extends any[] = any[]> =
@@ -24,6 +31,7 @@ const over: <E extends any[] = any[], T>(
   value: T,
 ) => Overridable<T, E>
 export default over
+export class Over<T> implements Overridable<T, []> {}
 
 ///////////////////////////////////////////////////////////////////////////////
 
