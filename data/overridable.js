@@ -5,29 +5,24 @@ import * as K from "../_internal/keywords.js"
 import * as S from "../_internal/symbols.js"
 
 class Cover { // mainly for ECS data preparation
-  constructor({ get, set }) {
-    this[S.toPrimitive] = get
-    this.set = set
-  }
-  get let() { return this.get() }
-  set let(v) { this.set(v) }
-  [S.toPrimitive]; set
+  [S.toPrimitive]; constructor(d) {
+    this[S.toPrimitive] = d.get
+    this.set = d.set
+    letis(this)
+  } set; let
 }
-// class Over extends Cover { constructor(v) { super({ get: _ => v, set: $ => v = $ }) } }
-class Over { // faster creation than `over()` but allocate more memory cuz this.get !== get this.let && set this.let !== this.set
+
+class Overridable { // faster creation than `over()` but allocate more memory (maybe)
   #v; constructor(v) { this.#v = v }
   [S.toPrimitive]() { return this.#v }
   set(v) { this.#v = v }
-  get let() { return this.#v }
-  set let(v) { this.#v = v }
 }
 
-const
-  over = (v
-    , get = _ => v
-    , set = $ => v = $
-  ) => U.defineProperty({ [S.toPrimitive]: get, set }
-    , K.LET, { get, set, [K.CONF]: true, [K.ENUM]: true })
+const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.set, [K.CONF]: true, [K.ENUM]: true })
+
+  , cover = ({ get, set }) => letis({ [S.toPrimitive]: get, set })
+
+  , over = (v, get = _ => v, set = $ => v = $) => letis({ [S.toPrimitive]: get, set })
 
   , override = (o, { set, get, ...d }) => U.defineProperties(o, {
     ...U.hasOwn(o, K.LET) || set && { let: { ...get && { get }, ...set && { set }, ...d } }
@@ -51,5 +46,7 @@ const
     ...d
   })
 
+  , Over = /* @__PURE__ */ (letis(Overridable[K.PROTO]), Overridable)
+
 export { get } from "./_public.js"
-export { over as default, override, chain, Over, Cover }
+export { over, cover, override, chain, Over, Cover }
