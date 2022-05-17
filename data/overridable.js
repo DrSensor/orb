@@ -1,7 +1,7 @@
 /// <reference types="./overridable" />
 
 import * as U from "../_internal/utils.js"
-import * as K from "../_internal/keywords.js"
+import * as K from "./_internal/keywords.js"
 import * as S from "../_internal/symbols.js"
 
 class Cover { // mainly for ECS data preparation
@@ -18,7 +18,7 @@ class Overridable { // faster creation than `over()` but allocate more memory (m
   set(v) { this.#v = v }
 }
 
-const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.set, [K.CONF]: true, [K.ENUM]: true })
+const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.set, ...K.desc })
 
   , cover = ({ get, set }) => letis({ [S.toPrimitive]: get, set })
 
