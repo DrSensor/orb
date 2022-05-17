@@ -12,7 +12,7 @@ class Cover { // mainly for ECS data preparation
   } set; let
 }
 
-class Overridable { // faster creation than `over()` but allocate more memory (maybe)
+class Over { // faster creation than `over()` but allocate more memory (maybe)
   #v; constructor(v) { this.#v = v }
   [S.toPrimitive]() { return this.#v }
   set(v) { this.#v = v }
@@ -46,7 +46,7 @@ const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.se
     ...d
   })
 
-  , Over = /* @__PURE__ */ (letis(Overridable[K.PROTO]), Overridable)
+  , Overridable = /* @__PURE__ */ (letis(Over[K.PROTO]), Over)
 
 export { get } from "./_public.js"
-export { over, cover, override, chain, Over, Cover }
+export { over, cover, override, chain, Overridable as Over, Cover }

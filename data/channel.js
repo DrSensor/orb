@@ -38,7 +38,7 @@ export default (size, label) => {
       return get(resolv)
     }, set
   }, {
-    let: { set, [enumerable]: true, [configurable]: true },
+    let: { set, get: () => buffer.at(-1), [enumerable]: true, [configurable]: true },
     [length]: { get: occupied }
   })
 };
