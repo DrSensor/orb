@@ -1,30 +1,39 @@
-import * as S from "./_internal/symbols.js"
 import * as U from "../_internal/utils.js"
 import * as K from "./_internal/keywords.js"
 
-class Signal {
-  #id = ID++
-  #e = Event(this.#id)
-  #v; constructor(v) { U.microtask(() => this.let = v) }
-  set(v) { this.#v = v; t.dispatchEvent(this.#e) }
-  then(resolve = U.identity) { t.addEventListener(this.#id, this[S.value] ??= () => resolve(v)) } // BUG: only have 1 listener
+// WARNING: it's impossible inherit AbortSignal without using Object.setPrototypeOf(/*very slow*/)
+class Signal extends EventTarget {
+  #s; #v
+  constructor(v, s = isAbortSignal(v)) {
+    super(); U.microtask(() => this.let = v)
+    if (s) this.#s = s
+    else {
+      const { abort, signal } = new AbortCtl
+      this.abort = abort; this.#s = signal
+    } this.#s.onabort = e => { this.onabort?.(e); this.dispatchEvent(e) }
+  }
+  set(v) { this.#v = v; this.dispatchEvent(e) }
+  then(resolve = U.identity) { this.addEventListener(e.type, e => resolve(v, e), { signal: this.#s }) }
   get let() { return this.#v }
 }
 
-const t = new EventTarget, ID = /* @__PURE__ */ U.random(), proto = /* @__PURE__ */ Signal[K.PROTO]
+const AbortCtl = AbortController, AbortSig = AbortSignal,
+  isAbortSignal = $ => $ instanceof AbortSig ? $ : K.VOID,
+  e = /* @__PURE__ */ new Event("change")
 
-  , signal = (v, id = ID++, e = Event(id),
-    s = {
-      [S.id]: id,
-      set($) { v = $; t.dispatchEvent(e) },
-      then(resolve = U.identity) { t.addEventListener(id, s[S.value] ??= () => resolve(v)) } // BUG: only have 1 listener
-    }) => (U.microtask(() => s.let = v), U.defineProperty(s, K.LET, {
-      get: () => v,
-      set: s.set, ...K.desc
-    }))
+  , sig = (v, s = isAbortSignal(v)
+    , { abort, signal = s } = s ? {} : new AbortCtl
+  ) => (U.microtask(() => signal.let = v), U.defineProperty(U.assign(signal, {
+    [K.THEN](resolve) { signal.addEventListener(e.type, e => resolve(v, e), { signal }) },
+    set($) { v = $; signal.dispatchEvent(e) },
+    ...abort && { abort }
+  }), K.LET, {
+    get: () => v, set: signal.set, ...K.desc
+  }))
 
-  , close = s => (t.removeEventListener(s[S.id], s[S.value]), s[S.value] = K.VOID) // TODO: refactor to use AbortSignal
+  , { timeout } = AbortSig
 
+  , proto = /* @__PURE__ */ Signal[K.PROTO]
   , Sig = /* @__PURE__ */ (U.defineProperty(proto, K.LET, { set: proto.set }), Signal)
 
-export { signal, close, Sig as Signal }
+export { sig as signal, timeout, Sig as Signal }

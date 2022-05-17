@@ -3,5 +3,6 @@ export const LET = "let"
   , ENUM = "enumerable"
   , LEN = "length"
   , THEN = "then"
+  , PROTO = "prototype"
   , NULL = null
   , VOID = undefined
