@@ -1,2 +1,3 @@
 const S = Symbol
-export const { toPrimitive } = S
+export { S as Symbol }
+export const { toPrimitive, iterator } = S
