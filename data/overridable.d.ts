@@ -14,6 +14,8 @@ export const get: <E extends any[], T>(
   ...extras: E,
 ) => T
 
+export const is: <T, E>(o: Overridable<T, E>) => boolean
+
 export class Cover<G extends () => any, S extends ($: any) => any> {
   constructor(desc: { get?: G, set?: S })
   get: G
@@ -27,11 +29,12 @@ export type Overridable<T, E extends any[] = any[]> =
   & (T extends string | number | symbol ? T : Readable<T, E>)
   & ({ get let(): T } & Writable<T, E>)
 
-const over: <E extends any[] = any[], T>(
+export const over: <E extends any[] = any[], T>(
   value: T,
 ) => Overridable<T, E>
-export default over
-export class Over<T> implements Overridable<T, []> {}
+export class Over<T> implements Overridable<T, []> {
+  constructor(value: T)
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 

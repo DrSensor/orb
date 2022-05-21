@@ -48,5 +48,5 @@ const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.se
 
   , Overridable = /* @__PURE__ */ (letis(Over[K.PROTO]), Over)
 
-export { get } from "./_public.js"
+export { get, is } from "./_public.js"
 export { over, cover, override, chain, Overridable as Over, Cover }
