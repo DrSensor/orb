@@ -22,7 +22,9 @@ const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.se
 
   , cover = ({ get, set }) => letis({ [S.toPrimitive]: get, set })
 
-  , over = (v, get = _ => v, set = $ => v = $) => letis({ [S.toPrimitive]: get, set })
+  , over_ = (v, get = _ => v, set = $ => v = $) => letis({ [S.toPrimitive]: get, set })
+
+  , over = v => new Over(v)
 
   , override = (o, { set, get, ...d }) => U.defineProperties(o, {
     ...U.hasOwn(o, K.LET) || set && { let: { ...get && { get }, ...set && { set }, ...d } }
@@ -49,4 +51,4 @@ const letis = o => U.defineProperty(o, K.LET, { get: o[S.toPrimitive], set: o.se
   , Overridable = /* @__PURE__ */ (letis(Over[K.PROTO]), Over)
 
 export { get, is } from "./_public.js"
-export { over, cover, override, chain, Overridable as Over, Cover }
+export { over_, over, cover, override, chain, Overridable as Over, Cover }

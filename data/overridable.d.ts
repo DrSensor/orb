@@ -32,6 +32,7 @@ export type Overridable<T, E extends any[] = any[]> =
 export const over: <E extends any[] = any[], T>(
   value: T,
 ) => Overridable<T, E>
+export const over_: typeof over
 export class Over<T> implements Overridable<T, []> {
   constructor(value: T)
 }
