@@ -3,7 +3,7 @@ export interface Writable<T, E extends any[] = any[]> {
   set let(value: T)
 }
 
-type $get = SymbolConstructor["toPrimitive"]
+const $get: SymbolConstructor["toPrimitive"]
 export interface Readable<T, E extends any[] = any[]> {
   [$get](hint: string, ...extras: E): T
 }
@@ -16,11 +16,15 @@ export const get: <E extends any[], T>(
 
 export const is: <T, E>(o: Overridable<T, E>) => boolean
 
-export class Cover<G extends () => any, S extends ($: any) => any> {
+abstract class Let<G, S> {
+  get let(): G
+  set let(value: S)
+}
+
+export class Cover<G extends () => any, S extends ($: any) => any> extends Let<ReturnType<G>, ReturnType<S>> {
   constructor(desc: { get?: G, set?: S })
-  get: G
+  [$get]: G
   set: S
-  let: ReturnType<G | S>
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -33,7 +37,7 @@ export const over: <E extends any[] = any[], T>(
   value: T,
 ) => Overridable<T, E>
 export const over_: typeof over
-export class Over<T> implements Overridable<T, []> {
+export class Over<T> implements Overridable<T, []> extends Let<T, T> {
   constructor(value: T)
 }
 
