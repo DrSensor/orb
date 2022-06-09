@@ -1,3 +1,4 @@
 const S = Symbol
 export { S as Symbol }
-export const { toPrimitive, iterator, species } = S
+export const { toPrimitive, iterator,
+  species, unscopables: parent } = S
