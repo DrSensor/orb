@@ -42,5 +42,73 @@ const count = over(0); {
   bench("use as condition via is()", as.standard, () => { if (!is(count)) doSomething() })
   bench("use as condition via autocast", as, () => { if (count == false) doSomething() })
   bench("use as condition via get()", as, () => { if (!get(count)) doSomething() })
+}
 
+import { chain, override } from "./overridable.js"; {
+  const as = group("override"), effect = new Set()
+  let number = 0
+  bench("Set.prototype.add", as.standard, () => {
+    effect.add(value => { number += value })
+    effect.clear()
+  })
+
+  bench("chain both (default)", as, () => {
+    let count = number++
+    chain(over(), {
+      set([value]) { count += value },
+      get: () => count,
+    })
+  })
+  bench("override both", as, () => {
+    let count = number++
+    override(over(), {
+      set(value) { count += value },
+      get: () => count,
+    })
+  })
+  bench("chain both (custom)", as, () => {
+    let count = number++
+    chain(over(), {
+      set([value], set) { set(count += value) },
+      get: ([], get) => get() + count,
+    })
+  })
+
+  bench("chain setter (default)", as, () => {
+    let diff = number++
+    chain(over(), {
+      set([value]) { number += value; number -= diff },
+    })
+  })
+  bench("override setter", as, () => {
+    let diff = number++
+    override(over(), {
+      set(value) { number += value; number -= diff },
+    })
+  })
+  bench("chain setter (custom)", as, () => {
+    let diff = number++
+    chain(over(), {
+      set([value], set) { set(number += value); number -= diff },
+    })
+  })
+
+  bench("chain getter (default)", as, () => {
+    const up = number++
+    chain(over(), {
+      get: () => up,
+    })
+  })
+  bench("override getter", as, () => {
+    const up = number++
+    override(over(), {
+      get: () => up,
+    })
+  })
+  bench("chain getter (custom)", as, () => {
+    const up = number++
+    chain(over(), {
+      get: ([], get) => get() + up,
+    })
+  })
 }

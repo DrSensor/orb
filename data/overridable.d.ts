@@ -54,8 +54,8 @@ export const override: <E extends any[], T>(
 ///////////////////////////////////////////////////////////////////////////////
 
 export interface ChainDescriptor<T, E extends any[] = any[]> {
-  set?(args: [value: T, ...extras: E], set?: Writable<T, E>["set"])
-  get?(args: [hint: string, ...extras: E], get?: Readable<T, E>[$get]): T
+  set?(args: [value: T, ...extras: E], set: Writable<T, E>["set"])
+  get?(args: [hint: string, ...extras: E], get: Readable<T, E>[$get]): T
   enumerable?: boolean
   configurable?: boolean
 }

@@ -25,27 +25,27 @@ class Over extends Let { // faster creation than `_over()` but allocate more mem
 
 const cover = d => new Cover(d), over = v => new Over(v)
 
-  , override = (o, { set, get, ...d }) => U.defineProperties(o, {
-    ...U.hasOwn(o, K.LET) || set && { let: { ...get && { get }, ...set && { set }, ...d } }
-    , set: set ? { value: set, ...d } : {}
-    , [S.toPrimitive]: get ? { value: get, ...d } : {}
-  })
+  , override = (o, { set, get }) => {
+    if (get) o[S.toPrimitive] = get
+    if (set) o.set = set
+  }
 
-  , chain = (o, { get, set, ...d }
-    , { [S.toPrimitive]: $get, set: $set } = o
-  ) => override(o, {
-    ...get && {
-      get: (...a) => get[K.LEN] == 1
-        ? get([$get(...a), ...U.tail(a)])  // value ◀ last chain ◀ … ◀ 1st chain
-        : get(a, $get)
-    },
-    ...set && {
-      set: (...a) => set[K.LEN] == 1
-        ? (set(a), $set(...a))             // value ▶ last chain ▶ … ▶ 1st chain
-        : set(a, $set)
-    },
-    ...d
-  })
+  , chain = (o, c) => {
+    let d = {}, { get, set } = c
+    if (get) {
+      get = o[S.toPrimitive].bind(o)
+      d.get = (...a) => c.get[K.LEN] > 1
+        ? c.get(a, get)
+        : c.get([get(...a), ...U.tail(a)])  // value ◀ last chain ◀ … ◀ 1st chain
+    }
+    if (set) {
+      set = o.set.bind(o)
+      d.set = (...a) => c.set[K.LEN] > 1
+        ? c.set(a, set)
+        : (c.set(a), set(...a))             // value ▶ last chain ▶ … ▶ 1st chain
+    }
+    override(o, d)
+  }
 
 over[S.species] = Over
 cover[S.species] = Cover
