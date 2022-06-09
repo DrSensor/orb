@@ -6,11 +6,17 @@ const { bench } = Deno, group = group => ({
 bench(" ", () => {})
 bench("no operation", () => {})
 
-import { over, over_, Over } from "./overridable.js"; {
+import { over, Over } from "./overridable.js"; {
   const as = group("create")
-  bench("create via factory", as, () => { over_() })
-  bench("create via class (call)", as.standard, () => { over() })
-  bench("create via class (new)", as, () => { new Over() })
+  bench("create via factory (not exported)", as, () => { _over() })
+  bench("create via `new Over()`", as, () => { new Over() })
+  bench("create via `over()`", as.standard, () => { over() })
+
+  const _over = v => ({
+    [Symbol.toPrimitive]: _ => v, set($) { v = $ },
+    get let() { return this[Symbol.toPrimitive]() },
+    set let(v) { this.set(v) },
+  })
 }
 
 import { get, is } from "./overridable.js"
