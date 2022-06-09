@@ -34,8 +34,13 @@ const count = over(0); {
   bench("read via autocast", as, () => { +count })
   bench("read via get()", as, () => { get(count) })
 } {
+  const as = group("key"), object = {}
+  bench("use as key via autocast", as, () => { object[count] })
+  bench("use as key via get()", as, () => { object[get(count)] })
+} {
   const as = group("condition"), doSomething = () => {}
-  bench("condition via is()", as.standard, () => { if (!is(count)) doSomething() })
-  bench("condition via autocast", as, () => { if (count == false) doSomething() })
-  bench("condition via get()", as, () => { if (!get(count)) doSomething() })
+  bench("use as condition via is()", as.standard, () => { if (!is(count)) doSomething() })
+  bench("use as condition via autocast", as, () => { if (count == false) doSomething() })
+  bench("use as condition via get()", as, () => { if (!get(count)) doSomething() })
+
 }
