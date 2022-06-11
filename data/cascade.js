@@ -1,5 +1,6 @@
 import * as S from "../_internal/symbols.js"
 import * as U from "../_internal/utils.js"
+import * as K from "../_internal/keywords.js"
 import { chain, get, Over } from "./overridable.js"
 
 class Inherit extends Over {
@@ -11,7 +12,7 @@ class Inherit extends Over {
 
 class Derive {
   constructor(o) {
-    U.isFunction(o)
+    U.isType(o, K.FUNC)
       ? this[S.toPrimitive] = o
       : this[S.parent] = o
   } [S.parent]

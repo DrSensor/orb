@@ -33,13 +33,13 @@ const cover = d => new Cover(d), over = v => new Over(v)
   , chain = (o, c) => {
     let d = {}, { get, set } = c
     if (get) {
-      get = o[S.toPrimitive].bind(o)
+      get = U.bind(o[S.toPrimitive], o)
       d.get = (...a) => c.get[K.LEN] > 1
         ? c.get(a, get)
         : c.get([get(...a), ...U.tail(a)])  // value ◀ last chain ◀ … ◀ 1st chain
     }
     if (set) {
-      set = o.set.bind(o)
+      set = U.bind(o.set, o)
       d.set = (...a) => c.set[K.LEN] > 1
         ? c.set(a, set)
         : (c.set(a), set(...a))             // value ▶ last chain ▶ … ▶ 1st chain

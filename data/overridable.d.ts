@@ -21,6 +21,7 @@ abstract class Let<G, S> {
   set let(value: S)
 }
 
+export const cover: <G extends () => any, S extends ($: any) => any>(desc: { get?: G, set?: S }) => Cover<G, S>
 export class Cover<G extends () => any, S extends ($: any) => any> extends Let<ReturnType<G>, ReturnType<S>> {
   constructor(desc: { get?: G, set?: S })
   [$get]: G
@@ -35,9 +36,9 @@ export type Overridable<T, E extends any[] = any[]> =
 
 export const over: <E extends any[] = any[], T>(
   value: T,
-) => Overridable<T, E>
+) => Over<E, T>
 export const over_: typeof over
-export class Over<T> implements Overridable<T, []> extends Let<T, T> {
+export class Over<E extends any[] = any, T> implements Overridable<T, E> extends Let<T, T> {
   constructor(value: T)
 }
 
