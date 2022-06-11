@@ -55,20 +55,21 @@ import { get, is } from "./overridable.js"; {
 }
 
 import { chain, override } from "./overridable.js"; {
-  const as = group("override"), effect = new Set()
+  const as = group("override")
+    , effect = new Set()
+    , arreff = []
   let number = 0
+
   bench("Set.prototype.add", as.criterion, () => {
-    effect.add(value => { number += value })
-    effect.clear()
+    const onchange = value => { number += value }
+    effect.add(onchange)
+    effect.delete(onchange)
+  })
+  bench("Array.prototype.push", as.criterion, () => {
+    arreff.push(value => { number += value })
+    arreff.pop()
   })
 
-  bench("chain both (default)", as, () => {
-    let count = number++
-    chain(over(), {
-      set([value]) { count += value },
-      get: () => count,
-    })
-  })
   bench("override both", as, () => {
     let count = number++
     override(over(), {
