@@ -10,14 +10,15 @@ class Let {
   set let(v) { this.set(v) }
 }
 
-class Cover extends Let { // mainly for ECS data preparation
+class Cover extends Let {
   set; constructor(d) {
-    super(); this.set = d.set
-    this[S.toPrimitive] = d.get
+    super()
+    this.set = d?.set
+    this[S.toPrimitive] = d?.get
   } [S.toPrimitive]
 }
 
-class Over extends Let { // faster creation than `_over()` but allocate more memory (maybe)
+class Over extends Let {
   #v; constructor(v) { super(); this.#v = v }
   [S.toPrimitive]() { return this.#v }
   set(v) { this.#v = v }
@@ -26,24 +27,34 @@ class Over extends Let { // faster creation than `_over()` but allocate more mem
 const cover = d => new Cover(d), over = v => new Over(v)
 
   , override = (o, { set, get }) => {
-    if (get) o[S.toPrimitive] = get
-    if (set) o.set = set
+    const t = new Cover()
+
+    if (get) {
+      t[S.toPrimitive] = U.bind(o[S.toPrimitive], o)
+      o[S.toPrimitive] = get.bind(t)
+    }
+
+    if (set) {
+      t.set = U.bind(o.set, o)
+      o.set = set.bind(t)
+    }
   }
 
   , chain = (o, c) => {
     let d = {}, { get, set } = c
-    if (get) {
-      get = U.bind(o[S.toPrimitive], o)
-      d.get = (...a) => c.get[K.LEN] > 1
-        ? c.get(a, get)
-        : c.get([get(...a), ...U.tail(a)])  // value ◀ last chain ◀ … ◀ 1st chain
-    }
-    if (set) {
-      set = U.bind(o.set, o)
-      d.set = (...a) => c.set[K.LEN] > 1
-        ? c.set(a, set)
-        : (c.set(a), set(...a))             // value ▶ last chain ▶ … ▶ 1st chain
-    }
+
+    if (get) d.get = function (...$) {
+      const get = value => c.get(value, ...U.tail($))
+        , value = this[S.toPrimitive](...$)
+        , async = value?.[K.THEN]
+      return async ? async(get) : get(value)
+    } // value ◀ last chain ◀ … ◀ 1st chain
+
+    if (set) d.set = function (...$) {
+      const async = c.set(...$)?.[K.THEN], set = U.bind(this.set, this)
+      async ? async(() => set(...$)) : set(...$)
+    } // value ▶ last chain ▶ … ▶ 1st chain
+
     override(o, d)
   }
 

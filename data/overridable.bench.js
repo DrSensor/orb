@@ -76,49 +76,37 @@ import { chain, override } from "./overridable.js"; {
       get: () => count,
     })
   })
-  bench("chain both (custom)", as, () => {
+  bench("chain both", as, () => {
     let count = number++
     chain(over(), {
-      set([value], set) { set(count += value) },
-      get: ([], get) => get() + count,
+      set(value) { count += value },
+      get: () => count,
     })
   })
 
-  bench("chain setter (default)", as, () => {
-    let diff = number++
-    chain(over(), {
-      set([value]) { number += value; number -= diff },
-    })
-  })
   bench("override setter", as, () => {
-    let diff = number++
+    let count = number++
     override(over(), {
-      set(value) { number += value; number -= diff },
+      set(value) { count += value },
     })
   })
-  bench("chain setter (custom)", as, () => {
-    let diff = number++
+  bench("chain setter", as, () => {
+    let count = number++
     chain(over(), {
-      set([value], set) { set(number += value); number -= diff },
+      set(value) { count += value },
     })
   })
 
-  bench("chain getter (default)", as, () => {
-    const up = number++
-    chain(over(), {
-      get: () => up,
-    })
-  })
   bench("override getter", as, () => {
-    const up = number++
+    const count = number++
     override(over(), {
-      get: () => up,
+      get: () => count,
     })
   })
-  bench("chain getter (custom)", as, () => {
-    const up = number++
+  bench("chain getter", as, () => {
+    const count = number++
     chain(over(), {
-      get: ([], get) => get() + up,
+      get: () => count,
     })
   })
 }
