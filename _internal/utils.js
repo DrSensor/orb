@@ -2,7 +2,7 @@ import * as K from "./keywords.js"
 export const { hasOwn, values
   , assign, defineProperty, defineProperties } = Object
   , isType = ($, t) => typeof $ === t
-  , bind = (fn, ...$) => fn.bind(fn, ...$)
+  , bind = (fn, ...$) => fn.bind(...$)
   , objLen = $ => values($)[K.LEN]
   , splice = ($, ...a) => $.splice(...a)
   , tail = ($, n = 1) => splice($, n)
