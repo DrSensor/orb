@@ -14,9 +14,9 @@ class Derive {
   constructor(o) {
     U.isType(o, K.FUNC)
       ? this[S.toPrimitive] = o
-      : this[S.parent] = o
-  } [S.parent]
-  [S.toPrimitive]() { return get(this[S.parent]) }
+      : this[S.unscopables] = o
+  } [S.unscopables]
+  [S.toPrimitive]() { return get(this[S.unscopables]) }
 }
 
 const inherit = o => new Inherit(o), derive = o => new Derive(o)

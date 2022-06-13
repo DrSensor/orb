@@ -1,6 +1,7 @@
 export const LET = "let"
   , CONF = "configurable"
   , ENUM = "enumerable"
+  , MUT = "writable"
   , FUNC = "function"
   , OBJ = "object"
   , STR = "string"
@@ -10,5 +11,7 @@ export const LET = "let"
   , LEN = "length"
   , THEN = "then"
   , PROTO = "prototype"
+  , TRUE = true
+  , FALSE = false
   , NULL = null
   , VOID = undefined
