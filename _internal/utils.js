@@ -1,7 +1,8 @@
 import * as K from "./keywords.js"
-export const { hasOwn, values
+export const { hasOwn, values, setPrototypeOf, getPrototypeOf
   , assign, defineProperty, defineProperties } = Object
   , isType = ($, t) => typeof $ === t
+  , del = ($, p) => delete $[p]
   , bind = (fn, ...$) => fn.bind(...$)
   , objLen = $ => values($)[K.LEN]
   , splice = ($, ...a) => $.splice(...a)

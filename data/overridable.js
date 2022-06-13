@@ -58,8 +58,8 @@ const cover = d => new Cover(d), over = v => new Over(v)
     override(o, d)
   }
 
-over[S.species] = Over
-cover[S.species] = Cover
+over[S.species] = Let
+cover[S.species] = Let
 
 export { get, is } from "./_public.js"
 export { over, cover, override, chain, Over, Cover }
