@@ -4,20 +4,24 @@ bench(" ", () => {})
 bench("no operation", () => {})
 
 import { over, cover, Over, Cover } from "./overridable.js"; {
-  const as = group("create")
-  bench("create via factory (not exported)", as, () => { _over() })
-  bench("create via `new Cover()` (inherited)", as, () => { new Over_() })
-  bench("create via `new Over()`", as, () => { new Over() })
-  bench("create via `over()`", as.standard, () => { over() })
-  bench("create via `cover()` (factory-ed)", as, () => { over_() })
+  const as = group("create"), value = over(0)
+  bench("create via factory (not exported)", as, () => { _over(0) })
+  bench("create via `new Cover()` (inherited)", as, () => { new CoverOver(0) })
+  bench("create via `new Cover(new Over(value))`", as, () => { new Cover(value) })
+  bench("create via `new Cover()`", as, () => { new Cover() })
+  bench("create via `new Over()`", as, () => { new Over(0) })
+  bench("create via `over()`", as.standard, () => { over(0) })
+  bench("create via `cover()`", as, () => { cover() })
+  bench("create via `cover(over(value))`", as, () => { cover(value) })
+  bench("create via `cover()` (factory-ed)", as, () => { coverOver(0) })
 
   const _over = v => ({
     [Symbol.toPrimitive]: _ => v, set($) { v = $ },
     get let() { return this[Symbol.toPrimitive]() },
     set let(v) { this.set(v) },
   })
-  const over_ = v => cover({ get: () => v, set: $ => v = $ })
-  class Over_ extends Cover {
+  const coverOver = v => cover({ get: () => v, set: $ => v = $ })
+  class CoverOver extends Cover {
     constructor(v) {
       super({ get: () => v, set: $ => v = $ })
     }

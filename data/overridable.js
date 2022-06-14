@@ -12,32 +12,29 @@ class Let {
 
 class Cover extends Let {
   set; constructor(d) {
-    super()
-    this.set = d?.set
-    this[S.toPrimitive] = d?.get
+    super(); if (d) {
+      const move = U.instanceOf(d, Let)
+      this.set = move ? U.bind(d.set, d) : d.set
+      this[S.toPrimitive] = move ? U.bind(d[S.toPrimitive], d) : d.get
+    }
   } [S.toPrimitive]
 }
 
 class Over extends Let {
-  #v; constructor(v) { super(); this.#v = v }
-  [S.toPrimitive]() { return this.#v }
-  set(v) { this.#v = v }
+  #v; constructor(v) {
+    super(); this.#v = v
+    this[S.toPrimitive] = function () { return this.#v } // workaround for v8 bug
+  } set(v) { this.#v = v }
+  // [S.toPrimitive]() { return this.#v } // BUG(V8): cause ~90x slower on `self[Symbol.toPrimitive].bind(self)`
+  // ["get"]() { return this.#v } <<<<<<<<<<<<<<<<<<: cause slow down too  `self.get.bind(self)`
 }
 
 const cover = d => new Cover(d), over = v => new Over(v)
 
   , override = (o, { set, get }) => {
-    const t = new Cover()
-
-    if (get) {
-      t[S.toPrimitive] = U.bind(o[S.toPrimitive], o)
-      o[S.toPrimitive] = get.bind(t)
-    }
-
-    if (set) {
-      t.set = U.bind(o.set, o)
-      o.set = set.bind(t)
-    }
+    const t = cover(o)
+    if (get) o[S.toPrimitive] = U.bind(get, t)
+    if (set) o.set = U.bind(set, t)
   }
 
   , chain = (o, c) => {

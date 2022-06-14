@@ -1,7 +1,9 @@
 import * as K from "./keywords.js"
 export const { hasOwn, values, setPrototypeOf, getPrototypeOf
   , assign, defineProperty, defineProperties } = Object
-  , isType = ($, t) => typeof $ === t
+  , instanceOf = ($, C) => $ instanceof C
+  , typeOf = $ => typeof $ // for use in `switch…case` statement
+  , isType = ($, t) => typeOf($) === t
   , del = ($, p) => delete $[p]
   , bind = (fn, ...$) => fn.bind(...$)
   , objLen = $ => values($)[K.LEN]
