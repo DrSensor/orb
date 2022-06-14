@@ -1,8 +1,4 @@
-const { bench } = Deno, group = group => ({
-  get standard() { return this.criterion },
-  get criterion() { return { group, baseline: true } },
-  group,
-})
+import { bench, group, as } from "../_internal/benchmark.js"
 
 bench(" ", () => {})
 bench("no operation", () => {})

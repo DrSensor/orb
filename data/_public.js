@@ -1,6 +1,6 @@
 import * as S from "../_internal/symbols.js"
 export const
-  get = (o, ...m) => o[S.toPrimitive](...m),
+  get = (o, ...m) => S.toPrimitive in o ? o[S.toPrimitive](...m) : o,
   is = (o, f) =>
     f ?
       o[S.species]
