@@ -38,7 +38,7 @@ const cover = d => new Cover(d), over = v => new Over(v)
   }
 
   , chain = (o, c) => {
-    let d = {}, { get, set } = c
+    const d = {}, { get, set } = c
 
     if (get) d.get = function (...$) {
       const get = value => c.get(value, ...U.tail($))
