@@ -12,45 +12,48 @@ class Inherit extends Over {
 
 class Derive extends Cover {
   #m = new Map
+  #v; #c
   constructor(derive) {
-    let isCached, value
+    let isCached
     const track = o => {
-      if (!this.#m.has(o)) {
-        const r = new WeakRef(this.#m) // or maybe `new WeakRef(U.bind(this.#reg.get, reg, o))` 🤔
+      const m = this.#m
+      if (!m.has(o)) {
+        const r = new WeakRef(m) // or maybe `new WeakRef(U.bind(m.get, m, o))` 🤔
         chain(o, {
-          set: v => {
+          set: v => { // accessing `this` here could prevent gc() for cleaning instance of Derive
             const m = r.deref()
             if (m) isCached = m.get(o) === v
           }
         })
       }
       isCached = K.TRUE
-      this.#m.set(o, get(o))
+      m.set(o, get(o))
       return o
     }
     derive = U.bind(derive, this)
-    super({ get() { return isCached ? value : value = derive(track, ...$) } })
+    super({ get: () => isCached ? this.#v : this.#v = derive(track, ...$) })
+    this.#c = cond => isCached = cond
   }
-  get set() {
-    const m = this.#m
-    return (self, ...$) => m.has(self)
-      ? self.set(...$)
-      : m.forEach(([o]) => o.set(self, ...$))
-  }
+  #s(value) {
+    this.#m.has(value)
+      ? (...$) => value.set(...$)
+      : (this.#c(K.TRUE), this.#v = value)
+  } get set() { return this.#s }
   //                                      ⌄⌄⌄ BEWARE
   // override(derived, { set(...$) { this.set(...$) } })
-  //    t = cover(derived) -----------------------------------------------------------+
-  //                                                                                  |
-  //        this.set = derived.set.bind(derived)                                      |
-  //                           ⌃⌃⌃ { get set() { return (self, ...$) => ... } }       |
-  //                                                                                  |
-  //    derived.set = set.bind(t) <---------------------------------------------------+
-  //            ⌃⌃⌃ { set set(fn = set.bind(cover(derived))) { ... } }
-  //                                        ⌃⌃⌃⌃⌃ this.set = derived.set.bind(derived)
+  //    t = cover(derived) ------------------------------------------------------------------+
+  //                                                                                         |
+  //        this.set = derived.set.bind(derived)                                             |
+  //                           ⌃⌃⌃ get set() { return value =>? (...$) => value.set(...$) }  |
+  //                                                                                         |
+  //    derived.set = set.bind(t) <----------------------------------------------------------+
+  //            ⌃⌃⌃ set set(fn = set.bind(cover(derived))) { ... }
+  //                                      ⌃⌃⌃⌃⌃ this.set = derived.set.bind(derived)
   set set(set) { // `set` arg already bounded
-    for (const [o] of reg) {
-      o.set = chain(o, { set: U.bind(set, K.VOID, o) })
-    }
+    const s = set.name, t = this.#s.name
+      , isOverride = `bound ${t}` === s || s === t // [[BoundFunction]].name consistent according to ecma262 spec
+    for (const [o] of reg) o.set =
+      chain(o, { set: isOverride ? set(o) : set })
   }
 }
 
