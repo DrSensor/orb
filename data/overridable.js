@@ -32,9 +32,13 @@ class Over extends Let {
 const cover = d => new Cover(d), over = v => new Over(v)
 
   , override = (o, { set, get }) => {
-    const t = cover(o)
+    const t = cover(o), { [S.toPrimitive]: $get, set: $set } = o
     if (get) o[S.toPrimitive] = U.bind(get, t)
     if (set) o.set = U.bind(set, t)
+    return () => { // resetter
+      o[S.toPrimitive] = $get
+      o.set = $set
+    }
   }
 
   , chain = (o, c) => {
@@ -52,7 +56,7 @@ const cover = d => new Cover(d), over = v => new Over(v)
       async ? async(() => set(...$)) : set(...$)
     } // value ▶ last chain ▶ … ▶ 1st chain
 
-    override(o, d)
+    return override(o, d)
   }
 
 over[S.species] = Let
