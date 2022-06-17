@@ -11,9 +11,8 @@ class Inherit extends Over {
 }
 
 class Derive extends Cover {
-  #m = new Map
-  #v; #c
-  constructor(derive) {
+  #m; #v; #c
+  constructor(derive, deps = []) {
     let isCached
     const track = o => {
       const m = this.#m
@@ -33,6 +32,7 @@ class Derive extends Cover {
     derive = U.bind(derive, this)
     super({ get: () => isCached ? this.#v : this.#v = derive(track, ...$) })
     this.#c = cond => isCached = cond
+    this.#m = new Map(deps.map(o => [o, get(o)]))
   }
   #s(value) {
     this.#m.has(value)
@@ -57,7 +57,7 @@ class Derive extends Cover {
   }
 }
 
-const inherit = o => new Inherit(o), derive = fn => new Derive(fn)
+const inherit = o => new Inherit(o), derive = (fn, deps = []) => new Derive(fn, deps)
 
 inherit[S.species] = Inherit
 derive[S.species] = Derive
