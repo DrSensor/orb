@@ -1,7 +1,6 @@
-import { bench, group, as } from "../_internal/benchmark.js"
+import { bench, group, warmup } from "../_internal/benchmark.js"
 
-bench(" ", () => {})
-bench("no operation", () => {})
+warmup()
 
 import { over, cover, Over, Cover } from "./overridable.js"; {
   const as = group("create"), value = over(0)

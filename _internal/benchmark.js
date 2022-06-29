@@ -1,4 +1,5 @@
 const { assign, defineProperties } = Object
+let warmupOnce
 export const
 
   group = assign(group => {
@@ -14,8 +15,21 @@ export const
       criterion: { get() { return assign(this, { baseline: true }) } },
       chosen: { get() { return assign(this, { only: true }) } },
     })
-  }, { only: groupName => assign(group(groupName), { only: true }) }),
+  }, {
+    only(groupName) {
+      const conf = assign(group(groupName), { only: true })
+      if (warmupOnce) warmup({ only: true })
+      warmupOnce = false
+      return conf
+    }
+  }),
 
   as = group(),
+
+  warmup = (as = {}) => {
+    warmupOnce = true
+    bench(" ", as, () => {})
+    bench("no operation", as, () => {})
+  },
 
   { bench } = Deno
