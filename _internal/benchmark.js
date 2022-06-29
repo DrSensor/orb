@@ -1,5 +1,5 @@
 const { assign, defineProperties } = Object
-let warmupOnce
+let warmupOnce, isHot
 export const
 
   group = assign(group => {
@@ -27,8 +27,9 @@ export const
   as = group(),
 
   warmup = (as = {}) => {
+    if (isHot) return
     warmupOnce = true
-    bench(" ", as, () => {})
+    bench(" ", as, () => { isHot = true })
     bench("no operation", as, () => {})
   },
 
