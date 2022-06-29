@@ -53,7 +53,7 @@ import { get, is } from "./overridable.js"; {
   }
 }
 
-import { chain, override } from "./overridable.js"; {
+import { watch, chain, override } from "./overridable.js"; {
   const as = group("create then override")
   let number = 0n
 
@@ -74,17 +74,27 @@ import { chain, override } from "./overridable.js"; {
     let count = number++
     chain(over(), value => count += value)
   })
+  bench("watch setter", as, () => {
+    let count = number++
+    watch(over(), value => { count += value })
+  })
 
   bench("override getter", as, () => {
-    const count = number++
+    let count = number++
     override(over(), {
-      get: () => count,
+      get: () => count++,
     })
   })
   bench("chain getter", as, () => {
-    const count = number++
+    let count = number++
     chain(over(), {
-      get: () => count,
+      get: () => count++,
+    })
+  })
+  bench("watch getter", as, () => {
+    let count = number++
+    watch(over(), {
+      get: () => count++,
     })
   })
 
@@ -92,17 +102,24 @@ import { chain, override } from "./overridable.js"; {
     let count = number++
     override(over(), {
       set(value) { count += value },
-      get: () => count,
+      get: () => count++,
     })
   })
   bench("chain both", as, () => {
     let count = number++
     chain(over(), {
       set: value => count += value,
-      get: () => count,
+      get: () => count++,
     })
   })
-} { // Somehow the benchmarks is skewed 😂
+  bench("watch both", as, () => {
+    let count = number++
+    watch(over(), {
+      set(value) { count += value },
+      get: () => count++,
+    })
+  })
+} { // Somehow the benchmarks is skewed 😂 (try fiddle with the benchmark order and `max` constant)
   const max = 7, as = group(`propagate ${max} side-effects`)
   let number = 0
 
@@ -121,4 +138,8 @@ import { chain, override } from "./overridable.js"; {
   bench("propagate via chain()", as, () => { $2.set(1) })
   const $2 = over(); for (let n = max; n--;)
     chain($2, value => (value *= n, number += value, value))
+
+  bench("propagate via watch()", as, () => { $3.set(1) })
+  const $3 = over(); for (let n = max; n--;)
+    watch($3, value => { number += value * n })
 }

@@ -47,7 +47,7 @@ const cover = d => new Cover(d), over = v => new Over(v)
       , setPrev = U.bind(o.set, o)
       , getPrev = U.bind(o[S.toPrimitive], o)
     if (get) _setFn(o, S.toPrimitive, (...$) => get(getPrev, setPrev, ...$))
-    if (set) _setFn(o, "set", (...$) => set(setPrev, getPrev, ...$))
+    if (set) _setFn(o, K.SET, (...$) => set(setPrev, getPrev, ...$))
     return _resetFn(o, set, get)
   }
 
@@ -62,12 +62,37 @@ const cover = d => new Cover(d), over = v => new Over(v)
         ? async(value => get(value, ...$))
         : get(value, ...$)
     }) // value ◀ last chain ◀ … ◀ 1st chain
-    if (set) _setFn(o, "set", (...$) => {
-      const ret = set(...$), async = ret?.[K.THEN]
+    if (set) _setFn(o, K.SET, (value, ...$) => {
+      const ret = set(value, ...$), async = ret?.[K.THEN]
       return async
-        ? async(() => setPrev(...$))
-        : (setPrev(...$), ret)
+        ? async(ret => setPrev(ret ?? value, ...$))
+        : setPrev(ret ?? value, ...$)
     }) // value ▶ last chain ▶ … ▶ 1st chain
+    return _resetFn(o, set, get)
+  }
+
+  , watch = (o, $) => {
+    const get = $.get
+      , set = U.isType($, K.OBJ) ? $.set : $
+      , setPrev = U.bind(o.set, o)
+      , getPrev = U.bind(o[S.toPrimitive], o)
+    if (get) {
+      let isRunning
+      _setFn(o, S.toPrimitive, (...$) => {
+        const value = getPrev(...$)
+        if (!isRunning) isRunning = !!get(...$)?.[K.FINALLY]?.(() => isRunning = K.FALSE)
+        return value
+      }) // 1st chain ; … ; last chain
+    }
+    if (set) {
+      let isRunning
+      _setFn(o, K.SET, (...$) => {
+        if (!isRunning) {
+          const promise = set(...$), async = promise?.[K.FINALLY]?.(() => isRunning = K.FALSE)[K.THEN]
+          return async ? (isRunning = K.TRUE, async(() => setPrev(...$))) : setPrev(...$)
+        } return setPrev(...$)
+      }) // last chain ; … ; 1st chain
+    }
     return _resetFn(o, set, get)
   }
 
@@ -75,4 +100,4 @@ over[S.species] = Let
 cover[S.species] = Let
 
 export { get, is } from "./_public.js"
-export { over, cover, override, chain, Over, Cover }
+export { over, cover, override, chain, watch, Over, Cover }
