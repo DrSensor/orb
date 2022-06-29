@@ -54,47 +54,25 @@ import { get, is } from "./overridable.js"; {
 }
 
 import { chain, override } from "./overridable.js"; {
-  const as = group("override")
-    , effect = new Set()
-    , arreff = []
-  let number = 0
+  const as = group("create then override")
+  let number = 0n
 
-  bench("Set.prototype.add", as.criterion, () => {
-    const onchange = value => { number += value }
-    effect.add(onchange)
-    effect.delete(onchange)
-  })
-  bench("Array.prototype.push", as.criterion, () => {
-    arreff.push(value => { number += value })
-    arreff.pop()
-  })
-
-  bench("override both", as, () => {
+  bench("Set.prototype.add", as, () => {
     let count = number++
-    override(over(), {
-      set(value) { count += value },
-      get: () => count,
-    })
+    new Set().add(value => { count += value })
   })
-  bench("chain both", as, () => {
+  bench("Array.prototype.push", as, () => {
     let count = number++
-    chain(over(), {
-      set(value) { count += value },
-      get: () => count,
-    })
+    [].push(value => { count += value })
   })
 
   bench("override setter", as, () => {
     let count = number++
-    override(over(), {
-      set(value) { count += value },
-    })
+    override(over(), value => { count += value })
   })
   bench("chain setter", as, () => {
     let count = number++
-    chain(over(), {
-      set(value) { count += value },
-    })
+    chain(over(), value => count += value)
   })
 
   bench("override getter", as, () => {
@@ -109,4 +87,38 @@ import { chain, override } from "./overridable.js"; {
       get: () => count,
     })
   })
+
+  bench("override both", as, () => {
+    let count = number++
+    override(over(), {
+      set(value) { count += value },
+      get: () => count,
+    })
+  })
+  bench("chain both", as, () => {
+    let count = number++
+    chain(over(), {
+      set: value => count += value,
+      get: () => count,
+    })
+  })
+} { // Somehow the benchmarks is skewed 😂
+  const max = 7, as = group(`propagate ${max} side-effects`)
+  let number = 0
+
+  bench("propagate via iterating Array", as, () => { for (const set of $01) set(1) })
+  const $01 = []; for (let n = max; n--;)
+    $01.push(value => { number += value * n })
+
+  bench("propagate via iterating Set", as, () => { for (const set of $02) set(1) })
+  const $02 = new Set(); for (let n = max; n--;)
+    $02.add(value => { number += value * n })
+
+  bench("propagate via override()", as.standard, () => { $1.set(1) })
+  const $1 = over(); for (let n = max; n--;)
+    override($1, (set, _, value) => { number += value * n; set(value) })
+
+  bench("propagate via chain()", as, () => { $2.set(1) })
+  const $2 = over(); for (let n = max; n--;)
+    chain($2, value => (value *= n, number += value, value))
 }
