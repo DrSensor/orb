@@ -20,6 +20,6 @@ expect.addAssertion("<any> same as <any>", (expect, subject, value) => {
   expect(subject, "to be", value)
 })
 
-export { describe, it } from "https://deno.land/std/testing/bdd.ts"
+export * from "https://deno.land/std/testing/bdd.ts"
 export * from "https://deno.land/std/testing/asserts.ts"
 export { expect }
