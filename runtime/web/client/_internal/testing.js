@@ -1,4 +1,8 @@
 export * from "../../../../_internal/testing.js"
+import * as T from "../../../../_internal/testing.js"
+import dom from "https://esm.sh/unexpected-dom?alias=magicpen-prism:magicpen-prism/magicPenPrism.min.js"
+export const expect = T.expect.clone().use(dom)
+
 import { // TODO: replace with jsdom when either jsdom refactored using ShadowRealm or deno shim for node vm is ready
   Document, DocumentFragment, Text, DOMParser,
   NodeList, Element,

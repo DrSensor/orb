@@ -12,52 +12,35 @@ describe("fun-runtime", () => {
   afterAll(() => emulateServerDOM(false))
 
   describe("text`${tagged} template`", () => {
-    it("return NodeList of Text when used as tagged template", () => {
-      const result = text`what a nice button`
-      expect(result, "not to be a string")
-      expect(result, "to be a", NodeList)
-      expect(result.length, "to be", 1)
-      expect(result[0], "not to be a string")
-      expect(result[0], "to be a", Text)
-      expect(result[0].data, "to be", String("what a nice button"))
-    })
     it("return Text when used as function with single argument", () => {
       const result = text("what a nice button")
-      expect(result, "not to be a string")
-      expect(result, "not to be a", NodeList)
       expect(result, "to be a", Text)
-      expect(result.data, "to be", String("what a nice button"))
+      expect(result, "to satisfy", ("what a nice button"))
+    })
+    it("return NodeList of Text when used as tagged template", () => {
+      const result = text`what a nice button`
+      expect(result, "to be a", NodeList)
+      expect(result, "to satisfy", ["what a nice button"])
     })
     it("can interpolate primitive and object", () => {
       const count = 100, object = { [Symbol.toPrimitive]: () => "button" }
       const result = text`spawn ${count} ${object}`
       expect(result, "to be a", NodeList)
-      expect(result.length, "to be", 4)
-      result.forEach(item => {
-        expect(item, "not to be a string")
-        expect(item, "to be a", Text)
-      })
-      expect(result[0].data, "to be", String("spawn "))
-      expect(result[1].data, "not to be", 100)
-      expect(result[1].data, "to be", String("100"))
-      expect(result[2].data, "to be", String(" "))
-      expect(result[3].data, "not to be", object)
-      expect(result[3].data, "to be", String("button"))
+      expect(result, "to satisfy", ["spawn ", "100", " ", "button"])
     })
     it("can bind reactive variable", () => {
       const value = over(0)
       let result
 
       result = text`be ${value}`
-      expect(result[0].data, "to be", String("be "))
-      expect(result[1].data, "to be", String("0"))
+      expect(result, "to satisfy", ["be ", "0"])
       value.let++
-      expect(result[1].data, "to be", String("1"))
+      expect(result, "to satisfy", ["be ", "1"])
 
       result = text(value)
-      expect(result.data, "to be", String("1"))
+      expect(result, "to satisfy", ("1"))
       value.let++
-      expect(result.data, "to be", String("2"))
+      expect(result, "to satisfy", ("2"))
     })
     it.ignore("can accept escape sequence via .raw modifier", () => {
       const unicodeOfChar = char => char.charCodeAt(0)
@@ -81,6 +64,7 @@ describe("fun-runtime", () => {
       const button = document.createElement("button")
       const a = document.createElement("a")
       const result = fragment("what", a, "nice", button)
+      // expect(result, "to satisfy", "what<a/>nice<button/>") // BUG(deps): deno_dom doesn't have Document.contentType
       expect(result.firstChild, "to be a", Text)
       expect(result.childNodes[1], "to be", a)
       expect(result.childNodes[2].data, "to be", String("nice"))
@@ -88,19 +72,19 @@ describe("fun-runtime", () => {
     })
   })
 
-  let element
+  let element, result
   const tests_createElement = () => {
     it("return DOM Element", () => {
-      const result = element()
+      result = element()
       expect(result, "to be an", Element)
     })
     it("can set attribute value", () => {
-      const result = element({ disabled: true })
-      expect(result.getAttribute("disabled"), "to be", String(true))
+      result = element({ disabled: true })
+      expect(result, "to only have attributes", { disabled: true })
     })
     if (inBrowser) it.ignore("can set property value", () => {}) // TODO: wait for jsdom fully supported in deno or just use https://deno.land/x/puppeteer
     it("can have children", () => {
-      const result = element({
+      result = element({
         children: [
           element({ children: text`${10}x engineer` }),
           element({
@@ -111,29 +95,31 @@ describe("fun-runtime", () => {
           }),
         ]
       })
-      expect(result.childElementCount, "to be", 2)
-      expect(result.children[0].childNodes.length, "to be", 2)
-      expect(result.children[1].childElementCount, "to be", 1)
-      expect(result.children[1].childNodes.length, "to be", 3)
+      expect(result, "to exhaustively satisfy", {
+        attributes: {},
+        children: [
+          { children: ["10", "x engineer"] },
+          { children: ["10", "x", { attributes: {} }] },
+        ]
+      })
     })
     it("can bind reactive variable", () => {
       const disabled = over(false)
-      let result
 
       result = element({ disabled })
-      expect(result.getAttribute("disabled"), "to be", String(false))
+      expect(result, "to only have attributes", { disabled: "false" })
       disabled.let = true
-      expect(result.getAttribute("disabled"), "to be", String(true))
+      expect(result, "to only have attributes", { disabled: true })
 
       result = element({ children: [disabled] })
-      expect(result.childNodes[0].data, "to be", String(true))
+      expect(result, "to have text", "true")
       disabled.let = false
-      expect(result.childNodes[0].data, "to be", String(true)) // no change!
+      expect(result, "to have text", "true") // no change!
 
       result = element({ children: [text(disabled)] }) // should be wrapped in text()
-      expect(result.childNodes[0].data, "to be", String(false))
+      expect(result, "to have text", "false")
       disabled.let = true
-      expect(result.childNodes[0].data, "to be", String(true))
+      expect(result, "to have text", "true")
     })
     it.ignore("can dispose() to remove element from document and reset the side-effects", () => {})
     it.ignore("can swap() element in place", () => {})
@@ -147,7 +133,10 @@ describe("fun-runtime", () => {
         const { button } = html
         element = button
       })
-      afterEach(() => { element = undefined })
+      afterEach(() => {
+        expect(result, "to satisfy", { name: "BUTTON" })
+        result = element = undefined
+      })
       tests_createElement()
     })
 
@@ -156,7 +145,7 @@ describe("fun-runtime", () => {
         const { rect } = svg
         element = rect
       })
-      afterEach(() => { element = undefined })
+      afterEach(() => { result = element = undefined })
       tests_createElement()
     })
   })
@@ -170,7 +159,13 @@ describe("fun-runtime", () => {
         const { button } = html(parseFromString(`<div id="main" />`, "text/html"))
         element = button
       })
-      afterEach(() => { element = undefined })
+      afterEach(() => {
+        expect(result.ownerDocument.documentElement, "to contain", html.div({ id: "main" }))
+        expect(result, "to satisfy", { name: "BUTTON" })
+        // expect(result.ownerDocument.body, "to contain", `<div id="main" />`) // BUG(deps): deno_dom doesn't have Document.contentType
+        // expect(result, "to match", "button") // BUG(deps): https://github.com/unexpectedjs/unexpected-dom/blob/master/src/matchesSelector.js#L10
+        result = element = undefined
+      })
       tests_createElement()
     })
 
@@ -179,9 +174,8 @@ describe("fun-runtime", () => {
         const { rect } = svg(parseFromString(`<svg id="main" />`, "image/svg+xml"))
         element = rect
       })
-      afterEach(() => { element = undefined })
+      afterEach(() => { result = element = undefined })
       tests_createElement()
     })
   })
-
 })
