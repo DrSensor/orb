@@ -1,9 +1,9 @@
-import expectation from "https://esm.run/unexpected"
+import expectation from "https://esm.sh/unexpected"
 const expect = expectation.clone()
   , { keys } = Object, { isArray } = Array
 
-// BUG: patching `to have keys` assertion cause `to have key` assertion broken 😩
-// BUG: the default behaviour assertion akways trigger the getter when using keyword `only` 😞
+// BUG: patching expect(,"to have keys",) cause expect(,"to have key",) broken 😩
+// BUG: the default behaviour assertion always trigger the getter when using flags [only] 😞
 expect.addAssertion("<object> to [not] [only] have (keys|key) <array|string>", (expect, subject, value) => {
   expect.errorMode = "diff" // avoid getter being triggered
   const { only, not } = expect.flags
