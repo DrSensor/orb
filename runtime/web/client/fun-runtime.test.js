@@ -1,7 +1,7 @@
 import {
   describe, it, expect,
   beforeAll, afterAll, beforeEach, afterEach,
-  emulateServerDOM, inBrowser,// emulateBrowserDOM, inServer,
+  emulateServerDOM, // inBrowser,// emulateBrowserDOM, inServer,
 } from "./_internal/testing.js"
 
 import { html, svg, text, fragment } from "./fun-runtime.js"
@@ -61,14 +61,8 @@ describe("fun-runtime", () => {
       expect(result, "to be a", DocumentFragment)
     })
     it("accept arguments as list of children", () => {
-      const button = document.createElement("button")
-      const a = document.createElement("a")
-      const result = fragment("what", a, "nice", button)
-      // expect(result, "to satisfy", "what<a/>nice<button/>") // BUG(deps): deno_dom doesn't have Document.contentType
-      expect(result.firstChild, "to be a", Text)
-      expect(result.childNodes[1], "to be", a)
-      expect(result.childNodes[2].data, "to be", String("nice"))
-      expect(result.lastChild, "to be", button)
+      const result = fragment("what", document.createElement("a"), "nice", document.createElement("button"))
+      expect(result, "to satisfy", "what<a></a>nice<button></button>")
     })
   })
 
@@ -77,12 +71,15 @@ describe("fun-runtime", () => {
     it("return DOM Element", () => {
       result = element()
       expect(result, "to be an", Element)
+      expect(result, "not to have attributes")
+      expect(result, "to have no child")
     })
     it("can set attribute value", () => {
-      result = element({ disabled: true })
-      expect(result, "to only have attributes", { disabled: true })
+      expect(result = element({ dir: "rtl" }), "to only have attributes", { dir: "rtl" })
     })
-    if (inBrowser) it.ignore("can set property value", () => {}) // TODO: wait for jsdom fully supported in deno or just use https://deno.land/x/puppeteer
+    it("can set property value", () => {
+      expect(result = element({ innerHTML: "🦋" }), "to have text", ("🦋"))
+    })
     it("can have children", () => {
       result = element({
         children: [
@@ -107,7 +104,10 @@ describe("fun-runtime", () => {
       const disabled = over(false)
 
       result = element({ disabled })
-      expect(result, "to only have attributes", { disabled: "false" })
+      if ("disabled" in result)
+        expect(result, "not to have attributes")
+      else
+        expect(result, "to only have attributes", { disabled: "false" })
       disabled.let = true
       expect(result, "to only have attributes", { disabled: true })
 
@@ -127,25 +127,28 @@ describe("fun-runtime", () => {
     it.ignore("swapped reactive attributes/props retain the side-effects", () => {})
   }
 
-  describe("use default DOM Document", () => { // TODO: use pupetter for testing webapp scenario
+  describe("use default DOM Document", () => { // TODO: use pupetter (or jsdom) for testing webapp scenario
     describe("for html", () => {
       beforeEach(() => {
         const { button } = html
         element = button
       })
       afterEach(() => {
-        expect(result, "to satisfy", { name: "BUTTON" })
+        expect(result, "to satisfy", { name: "button" })
         result = element = undefined
       })
       tests_createElement()
     })
 
-    describe.ignore("for svg", () => { // TODO: wait for deno_dom to support svg namespace or jsdom is fully supported in deno (or just use https://deno.land/x/puppeteer)
+    describe("for svg", () => {
       beforeEach(() => {
         const { rect } = svg
         element = rect
       })
-      afterEach(() => { result = element = undefined })
+      afterEach(() => {
+        expect(result, "to satisfy", { name: "rect" })
+        result = element = undefined
+      })
       tests_createElement()
     })
   })
@@ -160,21 +163,23 @@ describe("fun-runtime", () => {
         element = button
       })
       afterEach(() => {
-        expect(result.ownerDocument.documentElement, "to contain", html.div({ id: "main" }))
-        expect(result, "to satisfy", { name: "BUTTON" })
-        // expect(result.ownerDocument.body, "to contain", `<div id="main" />`) // BUG(deps): deno_dom doesn't have Document.contentType
-        // expect(result, "to match", "button") // BUG(deps): https://github.com/unexpectedjs/unexpected-dom/blob/master/src/matchesSelector.js#L10
+        expect(result, "to satisfy", { name: "button" })
+        expect(result.ownerDocument, "to contain", `<div id="main">`)
         result = element = undefined
       })
       tests_createElement()
     })
 
-    describe.ignore("for svg", () => {
+    describe("for svg", () => {
       beforeEach(() => {
         const { rect } = svg(parseFromString(`<svg id="main" />`, "image/svg+xml"))
         element = rect
       })
-      afterEach(() => { result = element = undefined })
+      afterEach(() => {
+        expect(result, "to satisfy", { name: "rect" })
+        expect(result.ownerDocument, "to contain", `<svg id="main">`)
+        result = element = undefined
+      })
       tests_createElement()
     })
   })
